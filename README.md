@@ -1,13 +1,12 @@
-# MyLight Bulb, based on [MagicBlue](https://github.com/Betree/magicblue) by Betree
-Use at own risk! This library is only for the settings of the bulb, not bt-music playing.
+# MyLight Bulb
+Use at own risk! This library is only for the settings of the bulb, not playing music.
 
 ## Mylight Bulb
-<img src="https://cdn.shopify.com/s/files/1/1026/2915/products/71sjF1R7SnL._SL1500_1024x1024.jpg?v=1499116245" width="500">
-
-Please visit Betrees repository for more info [magicblue](https://github.com/Betree/magicblue)
+<img src="https://cdn.shopify.com/s/files/1/1026/2915/products/71sjF1R7SnL._SL1500_1024x1024.jpg?v=1499116245" width="200">
 
 
-## Example use:
+## Usage
+### Module
 
 ```python
 from mylight import MyLight
@@ -22,7 +21,7 @@ bulb.is_on
 bulb.set_effect('music')
 for i in range(100):
     bulb.set_sound_level(i)
-    
+
 sleep(1)
 
 bulb.get_device_info()
@@ -66,51 +65,11 @@ for i in range(10):
 
 ```
 
+# Todo
+See [List](TODO.md)
 
-
-## Todo
-
-### Todo for MyLight Bulb <br>
-[ ] Fix magicblueshell for both magicblue and mylight <br>
-[x] Encode <br>
-[x] Encode all messages of one func <br>
-[x] Checksum send <br>
-[x] Checksum receive <br>
-[x] Current status <br>
-[?] Decode response status <br>
-[x] Decode response lamp <br>
-[x] Test response lamp <br>
-[x] Decode response timer <br>
-[ ] Test response timer <br>
-[x] Decode response sound <br>
-[ ] Test response sound <br>
-[x] Receive response when write-req <br>
-[x] On/off <br>
-[x] Colors <br>
-[x] Effects <br>
-[x] Brightness/Warm <br>
-[x] White (special effect, no good solution yet) <br>
-[x] White is it possible to set temp?
-[x] White status
-[x] Sound equalizer mode, not tested <br>
-[x] Sound equalizer settings, not tested <br>
-[x] Sound Volume, not tested <br>
-[x] Time/Alarm, not tested <br>
-[-] Pull-req to Betree (if possible) <br>
-
-### Todo Home assistant 
-[x] Home assistant custom_component [repo](https://github.com/orrpan/homeassistant-magicblue)<br>
-[x] On/Off<br>
-[x] Brightness<br>
-[x] RGB <br>
-[x] Effects <br>
-[x] White <br>
-[x] Get updates from bulb <br>
-[-] Timer, not needed <br>
-[ ] Music, maybe not needed <br>
-
-### Package description
-#### Send <br>
+## Package description
+### Send <br>
 {4 byte} header [0x55, 0xaa] <br>
 {2 byte} data length <br>
 {2 byte} 0x08 lamp/effect, 0x05 timer, 0x04 music/sound settings <br>
@@ -118,7 +77,7 @@ for i in range(10):
 {data length byte} data <br>
 {2 byte} checksum <br>
 
-#### Receive (sound and timer, lamp has no response) <br> 
+### Receive (sound and timer, lamp has no response) <br>
 {4 byte} header [0x55, 0xaa] <br>
 {2 byte} data length <br>
 {2 byte} 0x88 lamp/effect, 0x85 timer, 0x84 music/sound settings <br>
@@ -126,8 +85,5 @@ for i in range(10):
 {data length byte} data <br>
 {2 byte} checksum <br>
 
-
-
-
-
-
+# Credits / Special Thanks
+* https://github.com/Betree
