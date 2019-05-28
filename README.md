@@ -77,7 +77,7 @@ See [List](TODO.md)
 {data length byte} data <br>
 {2 byte} checksum <br>
 
-### Receive (sound and timer, lamp has no response) <br>
+### Receive only sound and timer (lamp functions has no response) <br>
 {4 byte} header [0x55, 0xaa] <br>
 {2 byte} data length <br>
 {2 byte} 0x88 lamp/effect, 0x85 timer, 0x84 music/sound settings <br>
