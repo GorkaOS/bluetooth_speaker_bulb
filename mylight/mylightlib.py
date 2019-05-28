@@ -196,12 +196,13 @@ class MyLight():
     Class to interface with Magic Blue light
     """
 
-    def __init__(self, mac_address, adapter=0, addr_type=None):
+    def __init__(self, mac_address, adapter=0, retries=3, addr_type=None):
         """
         :param mac_address: device MAC address as a string
         :param version: bulb version as displayed in official app (integer)
         """
         self._connection = None
+        self._retries = retries
 
         self.mac_address = mac_address
         self._adapter = adapter
@@ -256,7 +257,6 @@ class MyLight():
             return None
         return data
 
-
     @property
     def effect_name(self):
         """Return which effect """
@@ -265,7 +265,6 @@ class MyLight():
         except KeyError:
             return None
         return data
-
 
     @property
     def white_intensity(self):
@@ -276,13 +275,13 @@ class MyLight():
         """
         Connect to device
 
-        :param adapter: bluetooth adapter name as shown by            "hciconfig" command. Default : 0 for (hci0)
+        :param adapter: bluetooth adapter name as shown by\
+            "hciconfig" command. Default : 0 for (hci0)
 
         :return: True if connection succeed, False otherwise
         """
         logger.debug("Connecting...")
-        retries = 5
-        for attempt in range(1, retries + 1, 1):
+        for attempt in range(1, self._retries + 1, 1):
             logger.info('Connection attempt: {}'.format(attempt))
             try:
                 connection = btle.Peripheral(self.mac_address, self._addr_type,
@@ -300,7 +299,7 @@ class MyLight():
                     'Successfully connected to: {}'.format(self.mac_address))
                 break
 
-            if attempt == retries:
+            if attempt == self._retries:
                 logger.error('Connection failed: {}'.format(self.mac_address))
                 return False
         self.update(['lamp', 'sound', 'timer'])

@@ -14,7 +14,7 @@ from time import sleep
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-bulb = MyLight('00:00:00:00:00:00', 0)
+bulb = MyLight('00:00:00:00:00:00', adapter=0, retries=3)
 bulb.connect()
 bulb.is_on
 
