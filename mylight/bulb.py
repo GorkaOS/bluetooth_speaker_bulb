@@ -55,7 +55,10 @@ class Bulb():
         return self._light.set_effect(effect=effect)
 
     def set_volume(self, volume) -> bool:
-        return self._speaker.set_speaker_level(volume=volume)
+        return self._speaker.set_speaker_level(level=volume)
 
     def set_speaker_effect(self, effect) -> bool:
         return self._speaker.set_speaker_effect(effect=effect)
+
+    def set_frequency_level(self, frequency, level) -> bool:
+        return self._speaker.set_speaker_level(level=level, function=frequency)

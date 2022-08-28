@@ -1,14 +1,5 @@
 from mylight import const
 
-# class Protocol():
-#     """
-#     Protocol encoding/decoding for the bulb
-#     """
-
-# Encode
-# Message
-# @staticmethod
-
 
 def encode_msg(category, function, data=[]):
     """
@@ -29,7 +20,6 @@ def encode_msg(category, function, data=[]):
     return msg
 
 # Checksum
-# @staticmethod
 
 
 def encode_checksum(msg):
@@ -75,13 +65,12 @@ def decode_function(buffer):
         if f == const.GetSpeakerFunction.volume.value:
             return decode_speaker_volume(buffer)
 
-        if f == const.GetSpeakerFunction.eq.value:
+        if f == const.GetSpeakerFunction.equalizer.value:
             return decode_speaker_equlizer(buffer)
 
     return []
 
 # Light
-# @staticmethod
 
 
 def decode_light_info(buffer):
@@ -113,24 +102,13 @@ def decode_light_info(buffer):
         'b':                buffer[7],
         'cold':             buffer[8],
         'warm':             buffer[9],
-        'white':            True if buffer[8] > 0 or buffer[9] > 0 else False,
         'brightness':       buffer[10],
         'on':               buffer[11],
-        'effect_id':        buffer[12],
-        'effect':           const.LightEffect['none'].name,
-        'rgb_color':        [buffer[5], buffer[6], buffer[7]],
+        'effect_raw':       buffer[12],
     }
-    if int(info['effect_id']) > 0:
-        try:
-            info['effect_id'] -= 1
-            info['effect'] = const.LightEffect(int(buffer[12]) - 1).name
-        except ValueError:
-            pass
-
     return info
 
 # Timer
-# @staticmethod
 
 
 def decode_time_auto(buffer):
@@ -161,8 +139,6 @@ def decode_time_auto(buffer):
         'stop_minute':      buffer[9],
     }
     return info
-
-# @staticmethod
 
 
 def decode_time_alarm(buffer):
@@ -198,7 +174,6 @@ def decode_time_alarm(buffer):
     return info
 
 # Speaker
-# @staticmethod
 
 
 def decode_speaker_volume(buffer):
@@ -221,8 +196,6 @@ def decode_speaker_volume(buffer):
     }
     return info
 
-# @staticmethod
-
 
 def decode_speaker_equlizer(buffer):
     """
@@ -244,24 +217,10 @@ def decode_speaker_equlizer(buffer):
     10: 69  checksum
     """
     info = {
-        'eq_80':        buffer[5],
-        'eq_200':       buffer[6],
-        'eq_500':       buffer[7],
-        'eq_2k':        buffer[8],
-        'eq_8k':        buffer[9],
+        'frequency_80':        buffer[5],
+        'frequency_200':       buffer[6],
+        'frequency_500':       buffer[7],
+        'frequency_2k':        buffer[8],
+        'frequency_8k':        buffer[9],
     }
     return info
-
-# Checksum
-# @staticmethod
-
-
-def verify_received_checksum(msg, encoded_checksum):
-    """
-    Verify checksum from received msg
-
-    :param msg: complete message
-    :param checksum: received encode_checksum(msg[0:-1])
-    :return: true or false, if checksum received is the same as calculated.
-    """
-    return msg[-1] == encoded_checksum

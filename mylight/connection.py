@@ -153,7 +153,7 @@ class Connection():
             # msg.append(protocol.encode_checksum(msg))
             self.send_message(msg)
             buffer = self.read_message()
-            logger.debug(buffer)
+            # logger.debug(buffer)
             buffer_list.append(protocol.decode_function(buffer))
         return buffer_list
 

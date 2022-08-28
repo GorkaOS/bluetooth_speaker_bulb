@@ -1,4 +1,5 @@
 from enum import Enum
+import enum
 
 
 class UUID_CHARACTERISTIC(Enum):
@@ -129,11 +130,11 @@ class SetSpeakerFunction(Enum):
     """
     speaker_effect = 0x05
     volume = 0x03
-    eq_80 = 0x0b
-    eq_200 = 0x0c
-    eq_500 = 0x0d
-    eq_2k = 0x0e
-    eq_8k = 0x0f
+    frequency_80 = 0x0b
+    frequency_200 = 0x0c
+    frequency_500 = 0x0d
+    frequency_2k = 0x0e
+    frequency_8k = 0x0f
 
 
 class GetSpeakerFunction(Enum):
@@ -141,7 +142,7 @@ class GetSpeakerFunction(Enum):
     An enum of all get speaker functions
     """
     volume = 0x04
-    eq = 0x14
+    equalizer = 0x14
 
 
 class SpeakerEffect(Enum):
@@ -153,3 +154,25 @@ class SpeakerEffect(Enum):
     pop = 0x02
     bass = 0x03
     jazz = 0x04
+
+
+class SpeakerEffectEqualizer(Enum):
+    """
+    An enum of equalizer
+    """
+    flat = \
+        {'frequency_80': 50, 'frequency_200': 50, 'frequency_500': 50,
+            'frequency_2k': 50, 'frequency_8k': 50}
+    classical = \
+        {'frequency_80': 65, 'frequency_200': 67, 'frequency_500': 50,
+            'frequency_2k': 29, 'frequency_8k': 68}
+    pop = \
+        {'frequency_80': 59, 'frequency_200': 50, 'frequency_500': 32,
+            'frequency_2k': 57, 'frequency_8k': 80}
+    bass = \
+        {'frequency_80': 81, 'frequency_200': 66, 'frequency_500': 32,
+            'frequency_2k': 51, 'frequency_8k': 68}
+    jazz = \
+        {'frequency_80': 72, 'frequency_200': 70, 'frequency_500': 61,
+            'frequency_2k': 48, 'frequency_8k': 34}
+
