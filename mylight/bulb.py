@@ -1,5 +1,3 @@
-from colorsys import rgb_to_hsv
-from re import I
 from mylight.connection import Connection
 from mylight.light import Light
 from mylight.speaker import Speaker
