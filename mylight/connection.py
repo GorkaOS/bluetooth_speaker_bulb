@@ -31,20 +31,6 @@ def connection_required(func):
     return wrapper
 
 
-def _figure_addr_type(mac_address=None, addr_type=None):
-    # addr_type rules all
-    if addr_type is not None:
-        return addr_type
-
-    # try using mac_address
-    if mac_address is not None:
-        mac_address_num = int(mac_address.replace(':', ''), 16)
-        if mac_address_num & 0xF00000000000 == 0xF00000000000:
-            return btle.ADDR_TYPE_PUBLIC
-
-    return btle.ADDR_TYPE_PUBLIC
-
-
 class Connection():
 
     def __init__(self, mac_address, adapter, retries=3) -> None:
@@ -136,8 +122,14 @@ class Connection():
         buffer = buffer.replace(b'\x00', b'')
         return buffer.decode('ascii')
 
+    @connection_required
+    def send_message(self, msg) -> bool:
+        return self.validate_response(self._send_characteristic.write(msg, withResponse=True))
 
     @connection_required
+    def read_message(self):
+        return self._connection.readCharacteristic(0x000e)
+
     def get_category_info(self, category, functions):
         """
         Retrieve category in from all functions.
@@ -150,10 +142,9 @@ class Connection():
             msg = protocol.encode_msg(category.value,
                                       func.value,
                                       const.Commands.REQ_DATA.value)
-            # msg.append(protocol.encode_checksum(msg))
             self.send_message(msg)
             buffer = self.read_message()
-            # logger.debug(buffer)
+            logger.debug(buffer)
             buffer_list.append(protocol.decode_function(buffer))
         return buffer_list
 
@@ -161,15 +152,6 @@ class Connection():
         if rsp['rsp'] == ['wr']:
             return True
         return False
-
-    @connection_required
-    def send_message(self, msg) -> bool:
-        return self.validate_response(self._send_characteristic.write(msg, withResponse=True))
-
-    @connection_required
-    def read_message(self):
-        return self._connection.readCharacteristic(0x000e)
-
 
     @property
     def _send_characteristic(self):

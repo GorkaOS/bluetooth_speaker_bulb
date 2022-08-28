@@ -32,7 +32,7 @@ class Bulb():
     def get_speaker_info(self) -> str:
         return self._speaker.update()
 
-    def turn_on(self, brightness=None, rgb_color=None) -> bool:
+    def turn_on(self) -> bool:
         return self._light.turn_on()
 
     def turn_off(self) -> bool:
