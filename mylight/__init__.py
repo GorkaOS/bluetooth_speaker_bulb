@@ -7,8 +7,17 @@
 
 __version__ = "0.0.1"
 
-try:
-    from mylight.mylightlib import MyLight
-except ImportError:
-    from mylightlib import MyLight
+
+
+# from mylight.mylightlib import MyLight
+from mylight.const import *
+# from mylight.msg import *
+from mylight.protocol import *
+
+# try:
+#     from mylightlib import MyLight
+#     from const import *
+# except ImportError:
+#     from mylight.mylightlib import MyLight
+#     from mylight.const import *
 
