@@ -1,3 +1,5 @@
+from colorsys import rgb_to_hsv
+from re import I
 from mylight.connection import Connection
 from mylight.light import Light
 from mylight.speaker import Speaker
@@ -32,33 +34,37 @@ class Bulb():
     def get_speaker_info(self) -> str:
         return self._speaker.update()
 
-    def turn_on(self) -> bool:
+    def turn_on(self, brightness: int = None, rgb_color: list = None) -> bool:
+        if brightness is not None:
+            return self.set_brightness(brightness=brightness)
+        if rgb_to_hsv is not None:
+            return self.set_rgb_color(rgb_color=rgb_color)
         return self._light.turn_on()
 
     def turn_off(self) -> bool:
         return self._light.turn_off()
 
-    def set_brightness(self, brightness) -> bool:
+    def set_brightness(self, brightness: int) -> bool:
         if self._light.brightness == brightness:
             self.turn_on()
         elif brightness == 0:
             self.turn_off()
         return self._light.set_brightness(brightness=brightness)
 
-    def set_rgb_color(self, rgb_color) -> bool:
+    def set_rgb_color(self, rgb_color: list) -> bool:
         return self._light.set_rgb_color(rgb_color=rgb_color)
 
     def set_white(self) -> bool:
         return self._light.set_white()
 
-    def set_effect(self, effect) -> bool:
+    def set_effect(self, effect: str) -> bool:
         return self._light.set_effect(effect=effect)
 
-    def set_volume(self, volume) -> bool:
+    def set_volume(self, volume: int) -> bool:
         return self._speaker.set_speaker_level(level=volume)
 
-    def set_speaker_effect(self, effect) -> bool:
+    def set_speaker_effect(self, effect: str) -> bool:
         return self._speaker.set_speaker_effect(effect=effect)
 
-    def set_frequency_level(self, frequency, level) -> bool:
+    def set_frequency_level(self, frequency: str, level: int) -> bool:
         return self._speaker.set_speaker_level(level=level, function=frequency)
