@@ -33,7 +33,7 @@ class Speaker():
                                   const.SetSpeakerFunction[function].value,
                                   level_modified)
         msg.append(protocol.encode_checksum(msg))
-        self._func(msg)
+        return self._func(msg)
 
     def set_speaker_effect(self, effect):
         """
@@ -45,7 +45,7 @@ class Speaker():
                                   const.SetSpeakerFunction.speaker_effect.value,
                                   const.SpeakerEffect[effect].value)
         msg.append(protocol.encode_checksum(msg))
-        self._func(msg)
+        return self._func(msg)
 
     @property
     def volume(self):
@@ -56,7 +56,6 @@ class Speaker():
     def volume(self, value):
         """Set volume"""
         self._volume = value
-        self.set_speaker_level(self._volume, 'volume')
 
     @property
     def effect(self):
@@ -67,5 +66,3 @@ class Speaker():
     def effect(self, value):
         """Set effect """
         self._effect = value
-        self.set_speaker_effect(self._effect)
-

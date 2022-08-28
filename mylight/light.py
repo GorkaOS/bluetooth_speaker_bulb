@@ -1,5 +1,6 @@
 from mylight import const, protocol
 
+
 class Light():
     """
     """
@@ -21,7 +22,7 @@ class Light():
         self._effect = effect
         self._white_effect = white_effect
 
-    def turn_off(self) -> str:
+    def turn_off(self) -> bool:
         """
         Turn off the light
         """
@@ -29,9 +30,9 @@ class Light():
                                   const.SetLightFunction.power.value,
                                   const.Commands.OFF.value)
         msg.append(protocol.encode_checksum(msg))
-        self._func(msg)
+        return self._func(msg)
 
-    def turn_on(self) -> list:
+    def turn_on(self) -> bool:
         """
         Set white color on the light
 
@@ -40,12 +41,10 @@ class Light():
         """
         # if brightness == self._brightness or brightness is None:
         msg = protocol.encode_msg(const.SetBulbCategory.light.value,
-                                    const.SetLightFunction.power.value,
-                                    const.Commands.ON.value)
+                                  const.SetLightFunction.power.value,
+                                  const.Commands.ON.value)
         msg.append(protocol.encode_checksum(msg))
-        self._func(msg)
-
-
+        return self._func(msg)
 
     def set_brightness(self, brightness) -> str:
         """
@@ -57,8 +56,8 @@ class Light():
                                   const.SetLightFunction.brightness.value,
                                   brightness)
         msg.append(protocol.encode_checksum(msg))
-        self._func(msg)
-        
+        return self._func(msg)
+
     def set_rgb_color(self, rgb_color):
         """
         Change bulb's color
@@ -69,7 +68,7 @@ class Light():
                                   const.SetLightFunction.color.value,
                                   rgb_color)
         msg.append(protocol.encode_checksum(msg))
-        self._func(msg)
+        return self._func(msg)
 
     def set_white(self):
         """
@@ -80,7 +79,7 @@ class Light():
                                   const.SetLightFunction.white_effect.value,
                                   const.Commands.ON.value)
         msg.append(protocol.encode_checksum(msg))
-        self._func(msg)
+        return self._func(msg)
 
     def set_effect(self, effect):
         """
@@ -92,7 +91,7 @@ class Light():
                                   const.SetLightFunction.effect.value,
                                   const.LightEffect[effect].value)
         msg.append(protocol.encode_checksum(msg))
-        self._func(msg)
+        return self._func(msg)
 
     @property
     def on(self) -> bool:
@@ -103,10 +102,6 @@ class Light():
     def on(self, value):
         """Set on."""
         self._on = value
-        if self._on:
-            self.turn_on()
-        else:
-            self.turn_off()
 
     @property
     def brightness(self) -> int:
@@ -117,7 +112,6 @@ class Light():
     def brightness(self, value):
         """Set brightness level."""
         self._brightness = value
-        self.set_brightness(self._brightness)
 
     @property
     def rgb_color(self):
@@ -128,8 +122,6 @@ class Light():
     def rgb_color(self, value):
         """Set color as list of [R, G, B], each 0-255."""
         self._rgb_color = value
-        self._white = False
-        self.set_rgb_color(self._rgb_color)
 
     @property
     def white(self):
@@ -140,8 +132,6 @@ class Light():
     def white(self, value):
         """Set white"""
         self._white = value
-        self._rgb_color = None
-        self.set_white(self._white)
 
     @property
     def effect(self):
@@ -152,4 +142,3 @@ class Light():
     def effect(self, value):
         """Set effect """
         self._effect = value
-        self.set_effect(self._effect)

@@ -88,6 +88,7 @@ class Connection():
                     self._mac_address))
                 return False
         # self.update(['light', 'speaker', 'timer'])
+        self.update(['light', 'speaker'])
         return True
 
     def disconnect(self):
