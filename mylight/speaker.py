@@ -1,23 +1,28 @@
 from mylight import const, protocol
 
 
+DATA_VOLUME = 0
+DATA_EQ = 1
+DATA_EFFECT = 2
+
+
 class Speaker():
     """
     class for speaker part of bulb
     """
 
-    def __init__(self,
-                 func,
-                 mute=False,
-                 volume=0,
-                 eq=[],
-                 effect=None
-                 ) -> None:
-        self._func = func
-        self._mute = mute
-        self._volume = volume
-        self._eq = eq
-        self._effect = effect
+    _data = []
+
+    def __init__(self, send_func, update_func) -> None:
+        self._send = send_func
+        self._update = update_func
+        self.update()
+
+    def update(self):
+        self._data = self._update(
+            const.SetBulbCategory.speaker,
+            const.GetSpeakerFunction
+        )
 
     def set_speaker_level(self, level, function):
         """
@@ -29,11 +34,11 @@ class Speaker():
         """
         max_level = 0x4f  # 79
         level_modified = int(level * max_level / 100)
-        msg = protocol.encode_msg(const.SetBulbCategory.speaker.value,
-                                  const.SetSpeakerFunction[function].value,
-                                  level_modified)
-        msg.append(protocol.encode_checksum(msg))
-        return self._func(msg)
+        return self._send(protocol.encode_msg(
+            const.SetBulbCategory.speaker.value,
+            const.SetSpeakerFunction[function].value,
+            level_modified)
+        )
 
     def set_speaker_effect(self, effect):
         """
@@ -41,28 +46,31 @@ class Speaker():
 
         :param speaker_effect: An speaker effect (see :class:`.SpeakerEffect`)
         """
-        msg = protocol.encode_msg(const.SetBulbCategory.speaker.value,
-                                  const.SetSpeakerFunction.speaker_effect.value,
-                                  const.SpeakerEffect[effect].value)
-        msg.append(protocol.encode_checksum(msg))
-        return self._func(msg)
+        self.effect = effect
+        return self._send(protocol.encode_msg(
+            const.SetBulbCategory.speaker.value,
+            const.SetSpeakerFunction.speaker_effect.value,
+            const.SpeakerEffect[effect].value)
+        )
 
     @property
     def volume(self):
         """Get volume."""
-        return self._volume
-
-    @volume.setter
-    def volume(self, value):
-        """Set volume"""
-        self._volume = value
+        return self._data[DATA_VOLUME]['volume']
 
     @property
     def effect(self):
         """Get effect """
-        return self._effect
+        try:
+            return self._data[DATA_EFFECT]['effect']
+        except IndexError:
+            return None
 
     @effect.setter
     def effect(self, value):
         """Set effect """
-        self._effect = value
+        self._data.append({'effect': value})
+
+    def eq(self):
+        """Get eq """
+        return self._data[DATA_EQ]

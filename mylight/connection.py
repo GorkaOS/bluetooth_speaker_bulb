@@ -3,7 +3,7 @@ import functools
 import logging
 from bluepy import btle
 from enum import Enum
-from mylight import const, protocol
+from mylight import bulb, const, protocol
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +53,6 @@ class Connection():
         self._adapter = adapter
         self._connection = None
         self._addr_type = btle.ADDR_TYPE_PUBLIC
-        self._device_info = None
-        self._speaker_info = None
-        self._timer_info = None
         self.connect()
 
     def connect(self):
@@ -87,8 +84,6 @@ class Connection():
                 logger.error('Connection failed: {}'.format(
                     self._mac_address))
                 return False
-        # self.update(['light', 'speaker', 'timer'])
-        self.update(['light', 'speaker'])
         return True
 
     def disconnect(self):
@@ -124,16 +119,10 @@ class Connection():
             self.get_device_name()
         except btle.BTLEException:
             self.disconnect()
-            self._device_info = None
-            self._timer_info = None
-            self._speaker_info = None
             return False
         except BrokenPipeError:
             # bluepy-helper died
             self._connection = None
-            self._device_info = None
-            self._timer_info = None
-            self._speaker_info = None
             return False
 
         return True
@@ -147,24 +136,9 @@ class Connection():
         buffer = buffer.replace(b'\x00', b'')
         return buffer.decode('ascii')
 
-    @connection_required
-    def get_device_info(self):
-        """
-        Retrieve device info for shell
-        """
-        msg = protocol.encode_msg(const.SetBulbCategory.light.value,
-                                  const.GetLightFunction.status.value,
-                                  const.Commands.REQ_DATA.value)
-        msg.append(protocol.encode_checksum(msg))
-        self._send_characteristic.write(msg, withResponse=True)
-        buffer = self._connection.readCharacteristic(0x000e)
-        logger.debug("Buffer received: " + str(buffer))
-        self._device_info = protocol.decode_light_info(buffer)
-        # logger.debug("Decode received: " + str(self._device_info))
-        return self._device_info
 
     @connection_required
-    def get_category_info(self, category, functions, with_response=True):
+    def get_category_info(self, category, functions):
         """
         Retrieve category in from all functions.
 
@@ -176,34 +150,12 @@ class Connection():
             msg = protocol.encode_msg(category.value,
                                       func.value,
                                       const.Commands.REQ_DATA.value)
-            msg.append(protocol.encode_checksum(msg))
-            # self._send_characteristic.write(msg, withResponse=True)
+            # msg.append(protocol.encode_checksum(msg))
             self.send_message(msg)
             buffer = self.read_message()
-            # buffer = self._connection.readCharacteristic(0x000e)
-            logger.info(buffer)
+            logger.debug(buffer)
             buffer_list.append(protocol.decode_function(buffer))
         return buffer_list
-
-    @connection_required
-    def update(self, categories=['light']):
-        """
-        Retrieve device info
-
-        :param categories: list which categories to receive
-        """
-
-        for category in categories:
-            c = const.SetBulbCategory[category]
-            if c == const.SetBulbCategory.light:
-                self._device_info = self.get_category_info(c, const.GetLightFunction)[0]
-            elif c == const.SetBulbCategory.timer:
-                self._timer_info = self.get_category_info(c, const.GetTimerFunction)
-            elif c == const.SetBulbCategory.speaker:
-                self._speaker_info = self.get_category_info(c, const.GetSpeakerFunction)
-            else:
-                return False
-        return True
 
     def validate_response(self, rsp) -> bool:
         if rsp['rsp'] == ['wr']:
@@ -215,7 +167,7 @@ class Connection():
         return self.validate_response(self._send_characteristic.write(msg, withResponse=True))
 
     @connection_required
-    def read_message(self) -> str:
+    def read_message(self):
         return self._connection.readCharacteristic(0x000e)
 
 
@@ -247,7 +199,7 @@ class Connection():
         return characteristics[0]
 
     @property
-    def _device_info_characteristic(self):
+    def _light_info_characteristic(self):
         """Get BTLE characteristic for reading device name"""
         characteristics = self._connection.getCharacteristics(
             uuid=UUID_CHARACTERISTIC.RECV.value)

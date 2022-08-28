@@ -25,7 +25,7 @@ def encode_msg(category, function, data=[]):
     msg = bytearray([0x55, 0xaa, len(data), category, function])
     for d in data:
         msg.append(d)
-    # logger.debug("msg: " + str(msg))
+    msg.append(encode_checksum(msg))
     return msg
 
 # Checksum
@@ -113,6 +113,7 @@ def decode_light_info(buffer):
         'b':                buffer[7],
         'cold':             buffer[8],
         'warm':             buffer[9],
+        'white':            True if buffer[8] > 0 or buffer[9] > 0 else False,
         'brightness':       buffer[10],
         'on':               buffer[11],
         'effect_id':        buffer[12],
