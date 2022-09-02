@@ -3,7 +3,6 @@ from mylight import const, protocol
 
 DATA_VOLUME = 0
 DATA_EQ = 1
-DATA_EFFECT = 2
 
 
 class Speaker():
@@ -11,35 +10,32 @@ class Speaker():
     Class for speaker part of bulb
     """
 
-    _raw_data: list = []
-    _mute: bool = False
-    _volume: int = 0
-    _equalizer: list = []
-    _speaker_effect: str = None
+    _raw_data: list
+    _mute: bool
+    _volume: int
+    _equalizer: list
+    _speaker_effect: str
 
-    def __init__(self, send_func, update_func) -> None:
-        self._send = send_func
-        self._update = update_func
-        self.update()
+    def __init__(self, raw_data: list) -> None:
+        self.update(raw_data=raw_data)
 
-    def update(self):
-        self._raw_data = self._update(
-            const.SetBulbCategory.speaker,
-            const.GetSpeakerFunction
-        )
-        self._mute = True if self._raw_data[DATA_VOLUME]['volume'] > 0 else False
-        self._volume = self._raw_data[DATA_VOLUME]['volume']
-        self._equalizer = self._raw_data[DATA_EQ]
+    def update(self, raw_data: list):
+        print(raw_data[DATA_VOLUME]['volume'])
+        self._mute = False if raw_data[DATA_VOLUME]['volume'] > 0 else True
+
+        min_level = const.SpeakerEqualizerLevelMin.volume.value
+        max_level = const.SpeakerEqualizerLevelMax.volume.value
+        steps = len(range(min_level, max_level))
+        self._volume = \
+            int(raw_data[DATA_VOLUME]['volume'] * 100 / steps)
+
+        self._equalizer = raw_data[DATA_EQ]
         self._speaker_effect = None
         for speaker_effect in const.SpeakerEffectEqualizer:
             if speaker_effect.value == self._equalizer:
                 self._speaker_effect = speaker_effect.name
 
-    def send(self, msg):
-        self._send(msg)
-        self.update()
-
-    def set_speaker_level(self, level, function='volume'):
+    def set_speaker_level(self, level, function=const.SetSpeakerFunction.volume.name):
         """
         Set speaker levels for volume and equalizer
 
@@ -47,12 +43,17 @@ class Speaker():
         :param speaker_function: An speaker function\
         ;(see :class:`.SetSpeakerFunction`)
         """
-        max_level = 0x4f  # 79
-        level_modified = int(level * max_level / 100)
-        return self.send(protocol.encode_msg(
+        min_level = const.SpeakerEqualizerLevelMin[function].value
+        max_level = const.SpeakerEqualizerLevelMax[function].value
+
+        steps = len(range(min_level, max_level))
+        level_modified = int(level / 100 * steps)
+
+
+        return protocol.encode_msg(
             const.SetBulbCategory.speaker.value,
             const.SetSpeakerFunction[function].value,
-            level_modified)
+            level_modified
         )
 
     def set_speaker_effect(self, effect):
@@ -61,10 +62,11 @@ class Speaker():
 
         :param speaker_effect: An speaker effect (see :class:`.SpeakerEffect`)
         """
-        return self.send(protocol.encode_msg(
+        self._effect = effect
+        return protocol.encode_msg(
             const.SetBulbCategory.speaker.value,
             const.SetSpeakerFunction.speaker_effect.value,
-            const.SpeakerEffect[effect].value)
+            const.SpeakerEffect[effect].value
         )
 
     @property

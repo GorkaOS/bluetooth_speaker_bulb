@@ -17,6 +17,7 @@ def encode_msg(category, function, data=[]):
     for d in data:
         msg.append(d)
     msg.append(encode_checksum(msg))
+
     return msg
 
 # Checksum

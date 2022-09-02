@@ -130,7 +130,7 @@ class Connection():
     def read_message(self):
         return self._connection.readCharacteristic(0x000e)
 
-    def get_category_info(self, category, functions):
+    def get_category_info(self, category, functions) -> list:
         """
         Retrieve category in from all functions.
 

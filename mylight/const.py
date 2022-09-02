@@ -154,6 +154,28 @@ class SpeakerEffect(Enum):
     bass = 0x03
     jazz = 0x04
 
+class SpeakerEqualizerLevelMin(Enum):
+    """
+    An enum of spekar min
+    """
+    volume = 0x00
+    frequency_80 =  0x15
+    frequency_200 = 0x4d
+    frequency_500 = 0x4f
+    frequency_2k =  0x48
+    frequency_8k =  0x48
+
+class SpeakerEqualizerLevelMax(Enum):
+    """
+    An enum of spekar max
+    """
+    volume = 0x1f
+    frequency_80 =  0x00
+    frequency_200 = 0x09
+    frequency_500 = 0x09
+    frequency_2k =  0x0d
+    frequency_8k =  0x0d
+
 
 class SpeakerEffectEqualizer(Enum):
     """

@@ -7,38 +7,30 @@ class Light():
     """
     Class for speaker part of bulb
     """
+    _on: bool
+    _brightness: int
+    _cold: int
+    _warm: int
+    _rgb_color: list
+    _white: bool
+    _effect_id: int
+    _effect: str
 
-    _raw_data: list = []
-    _on: bool = False
-    _brightness: int = 0
-    _cold: int = 0
-    _warm: int = 0
-    _rgb_color: list = [0, 0, 0]
-    _white: bool = False
-    _effect_id: int = 0
-    _effect: str = None
+    def __init__(self, raw_data: list) -> None:
+        self.update(raw_data=raw_data)
 
-    def __init__(self, send_func, update_func) -> None:
-        self._send = send_func
-        self._update = update_func
-        self.update()
-
-    def update(self):
-        self._raw_data = self._update(
-            const.SetBulbCategory.light,
-            const.GetLightFunction
-        )
-        self._on = self._raw_data[DATA_LIGHT]['on']
-        self._brightness = self._raw_data[DATA_LIGHT]['brightness']
-        self._cold = self._raw_data[DATA_LIGHT]['cold']
-        self._warm = self._raw_data[DATA_LIGHT]['warm']
+    def update(self, raw_data: list):
+        self._on = raw_data[DATA_LIGHT]['on']
+        self._brightness = raw_data[DATA_LIGHT]['brightness']
+        self._cold = raw_data[DATA_LIGHT]['cold']
+        self._warm = raw_data[DATA_LIGHT]['warm']
         self._rgb_color = [
-            self._raw_data[DATA_LIGHT]['r'],
-            self._raw_data[DATA_LIGHT]['g'],
-            self._raw_data[DATA_LIGHT]['b']
+            raw_data[DATA_LIGHT]['r'],
+            raw_data[DATA_LIGHT]['g'],
+            raw_data[DATA_LIGHT]['b']
         ]
         self._white = True if self._warm > 0 or self._cold > 0 else False
-        self._effect_id = self._raw_data[DATA_LIGHT]['effect_raw']
+        self._effect_id = raw_data[DATA_LIGHT]['effect_raw']
         if (self._effect_id > 0):
             try:
                 self._effect_id -= 1
@@ -48,31 +40,29 @@ class Light():
         else:
             self._effect = None
 
-    def send(self, msg):
-        self._send(msg)
-        self.update()
-
-    def turn_off(self) -> bool:
+    def turn_off(self) -> str:
         """
         Turn off the light
         """
-        return self.send(protocol.encode_msg(
+        self._on = False
+        return protocol.encode_msg(
             const.SetBulbCategory.light.value,
             const.SetLightFunction.power.value,
-            const.Commands.OFF.value)
+            const.Commands.OFF.value
         )
 
-    def turn_on(self) -> bool:
+    def turn_on(self) -> str:
         """
         Set white color on the light
 
         :param brightness: a float value between 0.0 and 1.0 defining the
             brightness
         """
-        return self.send(protocol.encode_msg(
+        self._on = True
+        return protocol.encode_msg(
             const.SetBulbCategory.light.value,
             const.SetLightFunction.power.value,
-            const.Commands.ON.value)
+            const.Commands.ON.value
         )
 
     def set_brightness(self, brightness) -> str:
@@ -81,10 +71,11 @@ class Light():
 
         :param intensity: brightness between 0..255
         """
-        return self.send(protocol.encode_msg(
+        self._brightness = brightness
+        return protocol.encode_msg(
             const.SetBulbCategory.light.value,
             const.SetLightFunction.brightness.value,
-            brightness)
+            brightness
         )
 
     def set_rgb_color(self, rgb_color):
@@ -93,10 +84,11 @@ class Light():
 
         :param rgb_color: color as a list of 3 values between 0 and 255
         """
-        return self.send(protocol.encode_msg(
+        self._rgb_color = rgb_color
+        return protocol.encode_msg(
             const.SetBulbCategory.light.value,
             const.SetLightFunction.color.value,
-            rgb_color)
+            rgb_color
         )
 
     def set_white(self):
@@ -104,11 +96,11 @@ class Light():
         Set white
 
         """
-        self.white = True
-        return self.send(protocol.encode_msg(
+        self._white = True
+        return protocol.encode_msg(
             const.SetBulbCategory.light.value,
             const.SetLightFunction.white_effect.value,
-            const.Commands.ON.value)
+            const.Commands.ON.value
         )
 
     def set_effect(self, effect):
@@ -117,10 +109,11 @@ class Light():
 
         :param effect: An effect
         """
-        return self.send(protocol.encode_msg(
+        self._effect = effect
+        return protocol.encode_msg(
             const.SetBulbCategory.light.value,
             const.SetLightFunction.effect.value,
-            const.LightEffect[effect].value)
+            const.LightEffect[effect].value
         )
 
     @property
