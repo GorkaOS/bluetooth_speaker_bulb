@@ -20,7 +20,7 @@ setuptools.setup(
     license='MIT',
     packages=['mylight'],
     install_requires=[
-        'bluepy==1.1.4',
+        'bleak>=0.15.0',
         'webcolors'
     ],
     include_package_data=True,
