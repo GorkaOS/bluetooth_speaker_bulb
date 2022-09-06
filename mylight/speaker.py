@@ -10,14 +10,12 @@ class Speaker():
     Class for speaker part of bulb
     """
 
-    _raw_data: list
-    _mute: bool
-    _volume: int
-    _equalizer: list
-    _speaker_effect: str
-
-    def __init__(self, raw_data: list) -> None:
-        self.update(raw_data=raw_data)
+    def __init__(self) -> None:
+        self._raw_data: list = None
+        self._mute: bool = None
+        self._volume: int = None
+        self._equalizer: list = None
+        self._speaker_effect: str = None
 
     def update(self, raw_data: list):
         print(raw_data[DATA_VOLUME]['volume'])
@@ -48,7 +46,6 @@ class Speaker():
 
         steps = len(range(min_level, max_level))
         level_modified = int(level / 100 * steps)
-
 
         return protocol.encode_msg(
             const.SetBulbCategory.speaker.value,

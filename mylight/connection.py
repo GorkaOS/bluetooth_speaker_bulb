@@ -1,20 +1,18 @@
-
 import functools
 import logging
-from bluepy import btle
-from enum import Enum
-from mylight import bulb, const, protocol
+from uuid import UUID
+from mylight import const, protocol
+
+
+from bleak import BleakClient, BleakScanner
+from bleak.exc import BleakError, BleakDBusError
+
 
 logger = logging.getLogger(__name__)
 
-
-class UUID_CHARACTERISTIC(Enum):
-    """
-    An enum of all UUID Characteristics
-    """
-    RECV = "0000a041-0000-1000-8000-00805f9b34fb"
-    WRITE = "0000a040-0000-1000-8000-00805f9b34fb"
-    DEVICE_NAME = "00002a00-0000-1000-8000-00805f9b34fb"
+NOTIFY_UUID: UUID = "0000a041-0000-1000-8000-00805f9b34fb"
+CONTROL_UUID: UUID = "0000a040-0000-1000-8000-00805f9b34fb"
+NAME_UUID: UUID = "00002a00-0000-1000-8000-00805f9b34fb"
 
 
 def connection_required(func):
@@ -23,7 +21,7 @@ def connection_required(func):
     """
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
-        if self._connection is None:
+        if not self._client.is_connected:
             raise Exception("Not connected")
 
         return func(self, *args, **kwargs)
@@ -33,15 +31,19 @@ def connection_required(func):
 
 class Connection():
 
-    def __init__(self, mac_address, adapter, retries=3) -> None:
-        self._retries = retries
+    def __init__(self, mac_address: str, adapter: str, timeout: int, retries: int) -> None:
         self._mac_address = mac_address
         self._adapter = adapter
-        self._connection = None
-        self._addr_type = btle.ADDR_TYPE_PUBLIC
-        self.connect()
+        self._timeout = timeout
+        self._retries = retries
+        self._client = BleakClient(
+            self._mac_address, device=self._adapter, timeout=self._timeout)
 
-    def connect(self):
+    def notification_handler(sender, data):
+        """Simple notification handler which prints the data received."""
+        print("Notification {0}: {1}".format(sender, data))
+
+    async def connect(self) -> bool:
         """
         Connect to device
 
@@ -53,45 +55,41 @@ class Connection():
         logger.debug("Connecting...")
         for attempt in range(1, self._retries + 1, 1):
             logger.info('Connection attempt: {}'.format(attempt))
+
             try:
-                connection = btle.Peripheral(
-                    self._mac_address, self._addr_type, self._adapter)
-                self._connection = connection.withDelegate(self)
-                self._subscribe_to_recv_characteristic()
-            except btle.BTLEException as e:
-                if e.code != btle.BTLEException.DISCONNECTED:
-                    raise
+                await self._client.connect()
+                await self.send_cmd(bytearray([0x01, 0x00]), 0x000f)
+            except BleakError:
+                pass
             else:
                 logger.info(
                     'Successfully connected to: {}'.format(self._mac_address))
                 break
+        if attempt == self._retries:
+            logger.error('Connection failed: {}'.format(
+                self._mac_address))
 
-            if attempt == self._retries:
-                logger.error('Connection failed: {}'.format(
-                    self._mac_address))
-                return False
-        return True
+        return self._client.is_connected
 
-    def disconnect(self):
+    async def disconnect(self) -> bool:
         """
         Disconnect from device
         """
         logger.debug("Disconnecting...")
 
         try:
-            self._connection.disconnect()
-        except btle.BTLEException:
+            await self._client.disconnect()
+        except BleakError:
             pass
+        return not self._client.is_connected
 
-        self._connection = None
-
-    def is_connected(self):
+    def is_connected(self) -> bool:
         """
         :return: True if connected
         """
-        return self._connection is not None
+        return self._client.is_connected
 
-    def test_connection(self):
+    def test_connection(self) -> bool:
         """
         Test if the connection is still alive
 
@@ -103,34 +101,32 @@ class Connection():
         # send test message, read bulb name
         try:
             self.get_device_name()
-        except btle.BTLEException:
+        except BleakError:
             self.disconnect()
             return False
         except BrokenPipeError:
-            # bluepy-helper died
-            self._connection = None
+            self._client = None
             return False
 
         return True
 
-    @connection_required
-    def get_device_name(self):
+    async def get_services(self) -> None:
+        """
+        :return: Services
+        """
+        svcs = await self._client.get_services()
+        print("Services:")
+        for service in svcs:
+            print(service)
+
+    async def get_device_name(self) -> str:
         """
         :return: Device name
         """
-        buffer = self._device_name_characteristic.read()
-        buffer = buffer.replace(b'\x00', b'')
-        return buffer.decode('ascii')
+        buffer: bytearray = await self.read_cmd(NAME_UUID)
+        return buffer.decode('utf-8')
 
-    @connection_required
-    def send_message(self, msg) -> bool:
-        return self.validate_response(self._send_characteristic.write(msg, withResponse=True))
-
-    @connection_required
-    def read_message(self):
-        return self._connection.readCharacteristic(0x000e)
-
-    def get_category_info(self, category, functions) -> list:
+    async def get_category_info(self, category, functions) -> list:
         """
         Retrieve category in from all functions.
 
@@ -142,8 +138,8 @@ class Connection():
             msg = protocol.encode_msg(category.value,
                                       func.value,
                                       const.Commands.REQ_DATA.value)
-            self.send_message(msg)
-            buffer = self.read_message()
+            await self.send_cmd(msg)
+            buffer = await self.read_cmd(0x000e)
             logger.debug(buffer)
             buffer_list.append(protocol.decode_function(buffer))
         return buffer_list
@@ -153,44 +149,11 @@ class Connection():
             return True
         return False
 
-    @property
-    def _send_characteristic(self):
-        """Get BTLE characteristic for sending commands"""
-        characteristics = self._connection.getCharacteristics(
-            uuid=UUID_CHARACTERISTIC.WRITE.value)
-        if not characteristics:
-            return None
-        return characteristics[0]
+    @connection_required
+    async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID):
+        await self._client.write_gatt_char(UUID, msg, response=True)
 
-    @property
-    def _recv_characteristic(self):
-        """Get BTLE characteristic for receiving data"""
-        characteristics = self._connection.getCharacteristics(
-            uuid=UUID_CHARACTERISTIC.RECV.value)
-        if not characteristics:
-            return None
-        return characteristics[0]
-
-    @property
-    def _device_name_characteristic(self):
-        """Get BTLE characteristic for reading device name"""
-        characteristics = self._connection.getCharacteristics(
-            uuid=UUID_CHARACTERISTIC.DEVICE_NAME.value)
-        if not characteristics:
-            return None
-        return characteristics[0]
-
-    @property
-    def _light_info_characteristic(self):
-        """Get BTLE characteristic for reading device name"""
-        characteristics = self._connection.getCharacteristics(
-            uuid=UUID_CHARACTERISTIC.RECV.value)
-        if not characteristics:
-            return None
-        return characteristics[0]
-
-    def _subscribe_to_recv_characteristic(self):
-        char = self._recv_characteristic
-        handle = char.valHandle - 4
-        msg = bytearray([0x01, 0x00])
-        self._connection.writeCharacteristic(handle, msg, withResponse=True)
+    @connection_required
+    async def read_cmd(self, UUID: UUID = NOTIFY_UUID) -> bytearray:
+        # return self._connection.readCharacteristic(0x000e)
+        return await self._client.read_gatt_char(UUID, respone=True)

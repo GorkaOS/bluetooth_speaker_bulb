@@ -7,17 +7,16 @@ class Light():
     """
     Class for speaker part of bulb
     """
-    _on: bool
-    _brightness: int
-    _cold: int
-    _warm: int
-    _rgb_color: list
-    _white: bool
-    _effect_id: int
-    _effect: str
 
-    def __init__(self, raw_data: list) -> None:
-        self.update(raw_data=raw_data)
+    def __init__(self) -> None:
+        self._on: bool = None
+        self._brightness: int = None
+        self._cold: int = None
+        self._warm: int = None
+        self._rgb_color: list = None
+        self._white: bool = None
+        self._effect_id: int = None
+        self._effect: str = None
 
     def update(self, raw_data: list):
         self._on = raw_data[DATA_LIGHT]['on']
