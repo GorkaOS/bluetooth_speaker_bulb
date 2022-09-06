@@ -18,7 +18,6 @@ class Speaker():
         self._speaker_effect: str = None
 
     def update(self, raw_data: list):
-        print(raw_data[DATA_VOLUME]['volume'])
         self._mute = False if raw_data[DATA_VOLUME]['volume'] > 0 else True
 
         min_level = const.SpeakerEqualizerLevelMin.volume.value

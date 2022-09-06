@@ -24,29 +24,33 @@ class Bulb():
     async def send(self, msg: str) -> bool:
         return await self._connection.send_cmd(msg)
 
-    # async def update(self, category: str, function: str) -> list:
-    #     return await self._connection.get_category_info(
-    #         category=category,
-    #         functions=function
-    #     )
+    async def receive(self, category: str, function: str) -> list:
+        return await self._connection.get_category_info(
+            category=category,
+            functions=function
+        )
 
-    # async def get_light_info(self) -> list:
-    #     return await self.update(
-    #         category=const.SetBulbCategory.light,
-    #         function=const.GetLightFunction
-    #     )
+    async def get_light_info(self) -> list:
+        return await self.receive(
+            category=const.SetBulbCategory.light,
+            function=const.GetLightFunction
+        )
 
-    # async def get_speaker_info(self) -> list:
-    #     return await self.update(
-    #         category=const.SetBulbCategory.speaker,
-    #         function=const.GetSpeakerFunction
-    #     )
+    async def get_speaker_info(self) -> list:
+        return await self.receive(
+            category=const.SetBulbCategory.speaker,
+            function=const.GetSpeakerFunction
+        )
 
-    # async def update_light(self) -> None:
-    #     await self._light.update(raw_data=self.get_light_info())
+    async def update(self) -> None:
+        await self.update_light()
+        await self.update_speaker()
 
-    # async def update_speaker(self):
-    #     await self._speaker.update(raw_data=self.get_speaker_info())
+    async def update_light(self) -> None:
+        self._light.update(raw_data=await self.get_light_info())
+
+    async def update_speaker(self):
+        self._speaker.update(raw_data=await self.get_speaker_info())
 
     async def turn_on(self, brightness: int = None, rgb_color: list = None) -> bool:
         if brightness is not None:

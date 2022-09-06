@@ -7,13 +7,12 @@ from mylight import const, protocol
 from bleak import BleakClient, BleakScanner
 from bleak.exc import BleakError, BleakDBusError
 
-
 logger = logging.getLogger(__name__)
 
-NOTIFY_UUID: UUID = "0000a041-0000-1000-8000-00805f9b34fb"
+RECIVE_UUID: UUID = "0000a041-0000-1000-8000-00805f9b34fb"
 CONTROL_UUID: UUID = "0000a040-0000-1000-8000-00805f9b34fb"
 NAME_UUID: UUID = "00002a00-0000-1000-8000-00805f9b34fb"
-
+NOTIFY_HANDLE: hex = 0x8
 
 def connection_required(func):
     """Raise an exception before calling the actual function if the device is
@@ -58,7 +57,7 @@ class Connection():
 
             try:
                 await self._client.connect()
-                await self.send_cmd(bytearray([0x01, 0x00]), 0x000f)
+                await self._client.start_notify(NOTIFY_HANDLE, self.notification_handler)
             except BleakError:
                 pass
             else:
@@ -139,7 +138,7 @@ class Connection():
                                       func.value,
                                       const.Commands.REQ_DATA.value)
             await self.send_cmd(msg)
-            buffer = await self.read_cmd(0x000e)
+            buffer = await self.read_cmd()
             logger.debug(buffer)
             buffer_list.append(protocol.decode_function(buffer))
         return buffer_list
@@ -154,6 +153,5 @@ class Connection():
         await self._client.write_gatt_char(UUID, msg, response=True)
 
     @connection_required
-    async def read_cmd(self, UUID: UUID = NOTIFY_UUID) -> bytearray:
-        # return self._connection.readCharacteristic(0x000e)
+    async def read_cmd(self, UUID: UUID = RECIVE_UUID) -> bytearray:
         return await self._client.read_gatt_char(UUID, respone=True)

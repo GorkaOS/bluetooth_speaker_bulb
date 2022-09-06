@@ -9,59 +9,64 @@ Use at own risk! This library is only for the settings of the bulb, not playing 
 ### Module
 
 ```python
-from mylight import MyLight
-from time import sleep
+import asyncio
 import logging
+from mylight.bulb import Bulb
+
 logging.basicConfig(level=logging.DEBUG)
 
-bulb = MyLight('00:00:00:00:00:00', adapter=0, retries=3)
-bulb.connect()
-bulb.is_on
-
-bulb.set_effect('music')
-for i in range(100):
-    bulb.set_sound_level(i)
-
-sleep(1)
-
-bulb.get_device_info()
-bulb.effect_value
-bulb.effect_name
-bulb.effect
+ADDRESS = "00:00:00:00:00:00"
+ADAPTER = "hci0"
 
 
-bulb.test_connection()
-bulb.turn_on()
+async def main(target_mac_address, host_adapter):
+    bulb = Bulb(mac_address=target_mac_address, adapter=host_adapter)
+    print(await bulb.connect())
 
-for i in range(5):
-    bulb.test_connection()
-    bulb.is_on
-    bulb.turn_on
-    bulb.is_on
-    bulb.turn_off()
-    bulb.is_on
+    await bulb.update()
+    print(await bulb.get_device_name())
+    await bulb._connection.get_services()
 
-bulb.turn_on()
-bulb.set_brightness(50)
-sleep(1)
-bulb.set_brightness(100)
-sleep(1)
-bulb.set_brightness(150)
-sleep(1)
-bulb.set_brightness(200)
-sleep(1)
-bulb.set_brightness(250)
-sleep(1)
-bulb.set_brightness(255)
+    await bulb.turn_off()
+    for k in range(1, 10, 1):
+        print(await bulb.get_light_info())
+        print(await bulb.turn_on())
+        await bulb.turn_on(20*k)
+        await asyncio.sleep(0.1)
 
-sleep(1)
+    await bulb.update_light()
 
-bulb.turn_off()
-bulb.turn_on()
-for i in range(10):
-    bulb.set_random_color()
-    sleep(1)
+    await bulb.set_volume(50)
 
+    await bulb.set_speaker_effect('flat')
+    await bulb.update_speaker()
+    print(bulb._speaker.effect)
+    await asyncio.sleep(2)
+
+    await bulb.set_speaker_effect('classical')
+    await bulb.update_speaker()
+    print(bulb._speaker.effect)
+    await asyncio.sleep(2)
+
+    await bulb.set_speaker_effect('pop')
+    await bulb.update_speaker()
+    print(bulb._speaker.effect)
+    await asyncio.sleep(2)
+
+    await bulb.set_speaker_effect('bass')
+    await bulb.update_speaker()
+    print(bulb._speaker.effect)
+    await asyncio.sleep(2)
+
+    await bulb.set_speaker_effect('jazz')
+    await bulb.update_speaker()
+    print(bulb._speaker.effect)
+    await asyncio.sleep(2)
+
+    print(await bulb.disconnect())
+
+
+asyncio.run(main(ADDRESS, ADAPTER))
 
 ```
 
