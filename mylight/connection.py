@@ -39,14 +39,14 @@ def model_from_name(ble_name: str) -> str:
 
 async def find_device_by_address(
     address: str, timeout: float = 20.0
-) -> BLEDevice | None:
+) -> BLEDevice:
     from bleak import BleakScanner
 
     return await BleakScanner.find_device_by_address(address.upper(), timeout=timeout)
 
 
-async def discover_yeelight_lamps(
-    scanner: type[BleakScanner] | None = None,
+async def discover_mylight_lamps(
+    scanner: type[BleakScanner],
 ) -> list[dict[str, Any]]:
     """Scanning feature
     Scan the BLE neighborhood for an Yeelight lamp
@@ -72,7 +72,7 @@ class Connection():
         self._timeout = timeout
         self._retries = retries
         self._client = BleakClient(
-            self._mac_address, timeout=self._timeout)
+            self._mac_address, adapter="hci1", timeout=self._timeout)
 
     def notification_handler(sender, data):
         """Simple notification handler which prints the data received."""
