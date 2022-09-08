@@ -72,7 +72,7 @@ class Connection():
         self._timeout = timeout
         self._retries = retries
         self._client = BleakClient(
-            self._mac_address, adapter="hci1", timeout=self._timeout)
+            self._ble_device, timeout=self._timeout)
 
     def notification_handler(sender, data):
         """Simple notification handler which prints the data received."""
