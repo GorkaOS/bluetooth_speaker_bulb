@@ -8,8 +8,4 @@
 __version__ = "0.0.2"
 
 
-
-try:
-    from mylight.bulb import Bulb, find_device_by_address, BleakError, discover_mylight_lamps, model_from_name
-except ImportError:
-    from mylight import Bulb, find_device_by_address, BleakError, discover_mylight_lamps, model_from_name
+from mylight import Bulb, find_device_by_address, BleakError, discover_mylight_lamps, model_from_name
