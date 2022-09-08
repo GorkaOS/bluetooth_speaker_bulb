@@ -8,4 +8,6 @@
 __version__ = "0.0.2"
 
 
-from mylight import Bulb, find_device_by_address, BleakError, discover_mylight_lamps, model_from_name
+from mylight.bulb import Bulb
+from mylight.connection import discover_mylight_lamps, find_device_by_address, model_from_name
+from bleak import BleakError
