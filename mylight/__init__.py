@@ -7,4 +7,9 @@
 
 __version__ = "0.0.2"
 
-from mylight.bulb import Bulb
+
+
+try:
+    from mylight.bulb import Bulb
+except ImportError:
+    from mylight import Bulb
