@@ -1,5 +1,6 @@
 import functools
 import logging
+from typing import Any
 from uuid import UUID
 from mylight import const, protocol
 
@@ -27,6 +28,38 @@ def connection_required(func):
         return func(self, *args, **kwargs)
 
     return wrapper
+
+def model_from_name(ble_name: str) -> str:
+    model = "Mylight"
+    # if ble_name.startswith("XMCTD_"):
+    #     model = MODEL_BEDSIDE
+    # if ble_name.startswith("yeelight_ms"):
+    #     model = MODEL_CANDELA
+    return model
+
+async def find_device_by_address(
+    address: str, timeout: float = 20.0
+) -> BLEDevice | None:
+    from bleak import BleakScanner
+
+    return await BleakScanner.find_device_by_address(address.upper(), timeout=timeout)
+
+
+async def discover_yeelight_lamps(
+    scanner: type[BleakScanner] | None = None,
+) -> list[dict[str, Any]]:
+    """Scanning feature
+    Scan the BLE neighborhood for an Yeelight lamp
+    This method requires the script to be launched as root
+    Returns the list of nearby lamps
+    """
+    lamp_list = []
+    scanner = scanner if scanner is not None else BleakScanner
+
+    devices = await scanner.discover()
+    for d in devices:
+        model = model_from_name(d.name)
+    return lamp_list
 
 
 class Connection():
