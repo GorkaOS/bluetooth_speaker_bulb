@@ -6,6 +6,7 @@ from mylight import const, protocol
 
 from bleak import BleakClient, BleakScanner
 from bleak.exc import BleakError, BleakDBusError
+from bleak.backends.device import BLEDevice
 
 logger = logging.getLogger(__name__)
 
@@ -30,13 +31,15 @@ def connection_required(func):
 
 class Connection():
 
-    def __init__(self, mac_address: str, adapter: str, timeout: int, retries: int) -> None:
-        self._mac_address = mac_address
-        self._adapter = adapter
+    # def __init__(self, mac_address: str, adapter: str, timeout: int, retries: int) -> None:
+    def __init__(self, ble_device: BLEDevice, timeout: int, retries: int) -> None:
+        self._ble_device = ble_device
+        self._mac_address = ble_device.address
+        # self._adapter = adapter
         self._timeout = timeout
         self._retries = retries
         self._client = BleakClient(
-            self._mac_address, device=self._adapter, timeout=self._timeout)
+            self._mac_address, timeout=self._timeout)
 
     def notification_handler(sender, data):
         """Simple notification handler which prints the data received."""
@@ -155,3 +158,10 @@ class Connection():
     @connection_required
     async def read_cmd(self, UUID: UUID = RECIVE_UUID) -> bytearray:
         return await self._client.read_gatt_char(UUID, respone=True)
+
+    async def find_device_by_address(
+        address: str, timeout: float = 20.0
+    ) -> BLEDevice:
+        from bleak import BleakScanner
+
+        return await BleakScanner.find_device_by_address(address.upper(), timeout=timeout)

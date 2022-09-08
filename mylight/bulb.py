@@ -2,15 +2,21 @@ from mylight import const
 from mylight.connection import Connection
 from mylight.light import Light
 from mylight.speaker import Speaker
+from bleak.backends.device import BLEDevice
 
 
 class Bulb():
 
-    def __init__(self, mac_address: str, adapter: str, timeout: int = 35, retries: int = 3) -> None:
-        self._connection = Connection(
-            mac_address=mac_address, adapter=adapter, timeout=timeout, retries=retries)
+    def __init__(self, ble_device: BLEDevice) -> None:
+        self._connection = Connection(ble_device, timeout=20, retries=3)
         self._light = Light()
         self._speaker = Speaker()
+        
+    # def __init__(self, mac_address: str, adapter: str, timeout: int = 35, retries: int = 3) -> None:
+    #     self._connection = Connection(
+    #         mac_address=mac_address, adapter=adapter, timeout=timeout, retries=retries)
+    #     self._light = Light()
+    #     self._speaker = Speaker()
 
     async def connect(self) -> bool:
         return await self._connection.connect()
