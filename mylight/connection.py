@@ -81,6 +81,7 @@ class Connection():
         self._retries = retries
         self._state_callbacks: list[Callable[[], None]] = []
         self._read_service = False
+        self._conn = Conn.DISCONNECTED
 
     def add_callback_on_state_changed(self, func: Callable[[], None]) -> None:
         """
@@ -99,7 +100,6 @@ class Connection():
             return
         _LOGGER.debug(
             f"Client with address {client.address} got disconnected!")
-        self._mode = None  # lamp not available
         self._conn = Conn.DISCONNECTED
         self.run_state_changed_cb()
 
