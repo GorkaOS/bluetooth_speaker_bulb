@@ -1,3 +1,4 @@
+from typing import Callable
 from mylight import const
 from mylight.connection import Connection
 from mylight.light import Light
@@ -15,6 +16,9 @@ class Bulb():
     @property
     def available(self) -> bool:
         return self._connection.is_connected()
+
+    def add_callback_on_state_changed(self, func: Callable[[], None]) -> None:
+        self._connection.add_callback_on_state_changed(func)
 
     async def connect(self) -> bool:
         return await self._connection.connect()
