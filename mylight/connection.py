@@ -19,6 +19,7 @@ CONTROL_UUID: UUID = "0000a040-0000-1000-8000-00805f9b34fb"
 NAME_UUID: UUID = "00002a00-0000-1000-8000-00805f9b34fb"
 NOTIFY_HANDLE: hex = 0x8
 
+
 class Conn(Enum):
     CONNECTED = 0
     DISCONNECTED = 1
@@ -37,9 +38,11 @@ def connection_required(func):
 
     return wrapper
 
+
 def model_from_name(ble_name: str) -> str:
     model = "Mylight"
     return model
+
 
 async def find_device_by_address(
     address: str, timeout: float = 20.0
@@ -67,8 +70,6 @@ async def discover_mylight_lamps(
 
 
 class Connection():
-
-    # def __init__(self, mac_address: str, adapter: str, timeout: int, retries: int) -> None:
     def __init__(self, ble_device: BLEDevice, timeout: int, retries: int) -> None:
         self._client: BleakClient | None = None
         self._ble_device = ble_device
@@ -76,13 +77,8 @@ class Connection():
         _LOGGER.debug(
             f"Initializing MyLight Lamp {self._ble_device.name} ({self._mac})"
         )
-        # self._ble_device = ble_device
-        # self._mac_address = ble_device.address
-        # self._adapter = adapter
         self._timeout = timeout
         self._retries = retries
-        # self._client = BleakClient(
-        #     self._ble_device, timeout=self._timeout)
 
     def add_callback_on_state_changed(self, func: Callable[[], None]) -> None:
         """
@@ -99,7 +95,8 @@ class Connection():
         # ensure we are responding to the newest client:
         if client != self._client:
             return
-        _LOGGER.debug(f"Client with address {client.address} got disconnected!")
+        _LOGGER.debug(
+            f"Client with address {client.address} got disconnected!")
         self._mode = None  # lamp not available
         self._conn = Conn.DISCONNECTED
         self.run_state_changed_cb()
@@ -150,50 +147,10 @@ class Connection():
             _LOGGER.error(f"Disconnection: BleakError: {err}")
         self._conn = Conn.DISCONNECTED
 
-
-    def notification_handler(sender, data):
+    def notification_handler(self, sender, data):
         """Simple notification handler which prints the data received."""
         print("Notification {0}: {1}".format(sender, data))
-
-    # async def connect(self) -> bool:
-    #     """
-    #     Connect to device
-
-    #     :param adapter: bluetooth adapter name as shown by\
-    #         "hciconfig" command. Default : 0 for (hci0)
-
-    #     :return: True if connection succeed, False otherwise
-    #     """
-    #     _LOGGER.debug("Connecting...")
-    #     for attempt in range(1, self._retries + 1, 1):
-    #         _LOGGER.info('Connection attempt: {}'.format(attempt))
-
-    #         try:
-    #             await self._client.connect()
-    #             await self._client.start_notify(NOTIFY_HANDLE, self.notification_handler)
-    #         except BleakError:
-    #             pass
-    #         else:
-    #             _LOGGER.info(
-    #                 'Successfully connected to: {}'.format(self._mac_address))
-    #             break
-    #     if attempt == self._retries:
-    #         _LOGGER.error('Connection failed: {}'.format(
-    #             self._mac_address))
-
-    #     return self._client.is_connected
-
-    # async def disconnect(self) -> bool:
-    #     """
-    #     Disconnect from device
-    #     """
-    #     _LOGGER.debug("Disconnecting...")
-
-    #     try:
-    #         await self._client.disconnect()
-    #     except BleakError:
-    #         pass
-    #     return not self._client.is_connected
+        self.run_state_changed_cb()
 
     def is_connected(self) -> bool:
         """
@@ -254,6 +211,7 @@ class Connection():
             buffer = await self.read_cmd()
             _LOGGER.debug(buffer)
             buffer_list.append(protocol.decode_function(buffer))
+            self.run_state_changed_cb()
         return buffer_list
 
     def validate_response(self, rsp) -> bool:
