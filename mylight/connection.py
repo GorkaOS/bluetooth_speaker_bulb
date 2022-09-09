@@ -1,20 +1,28 @@
+import asyncio
 import functools
 import logging
-from typing import Any
+from enum import Enum
+from typing import Any, Callable
 from uuid import UUID
 from mylight import const, protocol
 
 
-from bleak import BleakClient, BleakScanner
-from bleak.exc import BleakError, BleakDBusError
+from bleak import BleakClient, BleakError, BleakScanner
+from bleak.backends.client import BaseBleakClient
 from bleak.backends.device import BLEDevice
+from bleak_retry_connector import establish_connection
 
-logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 RECIVE_UUID: UUID = "0000a041-0000-1000-8000-00805f9b34fb"
 CONTROL_UUID: UUID = "0000a040-0000-1000-8000-00805f9b34fb"
 NAME_UUID: UUID = "00002a00-0000-1000-8000-00805f9b34fb"
 NOTIFY_HANDLE: hex = 0x8
+
+class Conn(Enum):
+    CONNECTED = 0
+    DISCONNECTED = 1
+
 
 def connection_required(func):
     """Raise an exception before calling the actual function if the device is
@@ -31,10 +39,6 @@ def connection_required(func):
 
 def model_from_name(ble_name: str) -> str:
     model = "Mylight"
-    # if ble_name.startswith("XMCTD_"):
-    #     model = MODEL_BEDSIDE
-    # if ble_name.startswith("yeelight_ms"):
-    #     model = MODEL_CANDELA
     return model
 
 async def find_device_by_address(
@@ -66,57 +70,130 @@ class Connection():
 
     # def __init__(self, mac_address: str, adapter: str, timeout: int, retries: int) -> None:
     def __init__(self, ble_device: BLEDevice, timeout: int, retries: int) -> None:
+        self._client: BleakClient | None = None
         self._ble_device = ble_device
-        self._mac_address = ble_device.address
+        self._mac = self._ble_device.address
+        _LOGGER.debug(
+            f"Initializing MyLight Lamp {self._ble_device.name} ({self._mac})"
+        )
+        # self._ble_device = ble_device
+        # self._mac_address = ble_device.address
         # self._adapter = adapter
         self._timeout = timeout
         self._retries = retries
-        self._client = BleakClient(
-            self._ble_device, timeout=self._timeout)
+        # self._client = BleakClient(
+        #     self._ble_device, timeout=self._timeout)
+
+    def add_callback_on_state_changed(self, func: Callable[[], None]) -> None:
+        """
+        Register callbacks to be called when lamp state is received or bt disconnected
+        """
+        self._state_callbacks.append(func)
+
+    def run_state_changed_cb(self) -> None:
+        """Execute all registered callbacks for a state change"""
+        for func in self._state_callbacks:
+            func()
+
+    def diconnected_cb(self, client: BaseBleakClient) -> None:
+        # ensure we are responding to the newest client:
+        if client != self._client:
+            return
+        _LOGGER.debug(f"Client with address {client.address} got disconnected!")
+        self._mode = None  # lamp not available
+        self._conn = Conn.DISCONNECTED
+        self.run_state_changed_cb()
+
+    async def connect(self, num_tries: int = 3) -> None:
+        _LOGGER.debug("Initiating new connection")
+        try:
+            if self._client:
+                await self.disconnect()
+
+            _LOGGER.debug("Connecting now:...")
+            self._client = await establish_connection(
+                BleakClient,
+                device=self._ble_device,
+                name=self._mac,
+                disconnected_callback=self.diconnected_cb,
+                max_attempts=3,
+            )
+            _LOGGER.debug(f"Connected: {self._client.is_connected}")
+
+            # read services if in debug mode:
+            if not self._read_service and _LOGGER.isEnabledFor(logging.DEBUG):
+                await self.read_services()
+                self._read_service = True
+                await asyncio.sleep(0.2)
+
+            _LOGGER.debug("Request Notify")
+            await self._client.start_notify(NOTIFY_HANDLE, self.notification_handler)
+            await asyncio.sleep(0.3)
+            await self.get_services()
+            self._conn == Conn.CONNECTED
+
+            _LOGGER.debug(f"Connection status: {self._conn}")
+
+        except asyncio.TimeoutError:
+            _LOGGER.error("Connection Timeout error")
+        except BleakError as err:
+            _LOGGER.error(f"Connection: BleakError: {err}")
+
+    async def disconnect(self) -> None:
+        if self._client is None:
+            return
+        try:
+            await self._client.disconnect()
+        except asyncio.TimeoutError:
+            _LOGGER.error("Disconnection: Timeout error")
+        except BleakError as err:
+            _LOGGER.error(f"Disconnection: BleakError: {err}")
+        self._conn = Conn.DISCONNECTED
+
 
     def notification_handler(sender, data):
         """Simple notification handler which prints the data received."""
         print("Notification {0}: {1}".format(sender, data))
 
-    async def connect(self) -> bool:
-        """
-        Connect to device
+    # async def connect(self) -> bool:
+    #     """
+    #     Connect to device
 
-        :param adapter: bluetooth adapter name as shown by\
-            "hciconfig" command. Default : 0 for (hci0)
+    #     :param adapter: bluetooth adapter name as shown by\
+    #         "hciconfig" command. Default : 0 for (hci0)
 
-        :return: True if connection succeed, False otherwise
-        """
-        logger.debug("Connecting...")
-        for attempt in range(1, self._retries + 1, 1):
-            logger.info('Connection attempt: {}'.format(attempt))
+    #     :return: True if connection succeed, False otherwise
+    #     """
+    #     _LOGGER.debug("Connecting...")
+    #     for attempt in range(1, self._retries + 1, 1):
+    #         _LOGGER.info('Connection attempt: {}'.format(attempt))
 
-            try:
-                await self._client.connect()
-                await self._client.start_notify(NOTIFY_HANDLE, self.notification_handler)
-            except BleakError:
-                pass
-            else:
-                logger.info(
-                    'Successfully connected to: {}'.format(self._mac_address))
-                break
-        if attempt == self._retries:
-            logger.error('Connection failed: {}'.format(
-                self._mac_address))
+    #         try:
+    #             await self._client.connect()
+    #             await self._client.start_notify(NOTIFY_HANDLE, self.notification_handler)
+    #         except BleakError:
+    #             pass
+    #         else:
+    #             _LOGGER.info(
+    #                 'Successfully connected to: {}'.format(self._mac_address))
+    #             break
+    #     if attempt == self._retries:
+    #         _LOGGER.error('Connection failed: {}'.format(
+    #             self._mac_address))
 
-        return self._client.is_connected
+    #     return self._client.is_connected
 
-    async def disconnect(self) -> bool:
-        """
-        Disconnect from device
-        """
-        logger.debug("Disconnecting...")
+    # async def disconnect(self) -> bool:
+    #     """
+    #     Disconnect from device
+    #     """
+    #     _LOGGER.debug("Disconnecting...")
 
-        try:
-            await self._client.disconnect()
-        except BleakError:
-            pass
-        return not self._client.is_connected
+    #     try:
+    #         await self._client.disconnect()
+    #     except BleakError:
+    #         pass
+    #     return not self._client.is_connected
 
     def is_connected(self) -> bool:
         """
@@ -175,7 +252,7 @@ class Connection():
                                       const.Commands.REQ_DATA.value)
             await self.send_cmd(msg)
             buffer = await self.read_cmd()
-            logger.debug(buffer)
+            _LOGGER.debug(buffer)
             buffer_list.append(protocol.decode_function(buffer))
         return buffer_list
 
