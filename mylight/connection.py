@@ -79,6 +79,7 @@ class Connection():
         )
         self._timeout = timeout
         self._retries = retries
+        self._state_callbacks: list[Callable[[], None]] = []
 
     def add_callback_on_state_changed(self, func: Callable[[], None]) -> None:
         """
