@@ -7,7 +7,6 @@ from bleak.backends.device import BLEDevice
 
 
 class Bulb():
-
     def __init__(self, ble_device: BLEDevice) -> None:
         self._connection = Connection(ble_device, timeout=20, retries=3)
         self._light = Light()
