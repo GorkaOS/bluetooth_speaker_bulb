@@ -11,12 +11,10 @@ class Bulb():
         self._connection = Connection(ble_device, timeout=20, retries=3)
         self._light = Light()
         self._speaker = Speaker()
-        
-    # def __init__(self, mac_address: str, adapter: str, timeout: int = 35, retries: int = 3) -> None:
-    #     self._connection = Connection(
-    #         mac_address=mac_address, adapter=adapter, timeout=timeout, retries=retries)
-    #     self._light = Light()
-    #     self._speaker = Speaker()
+
+    @property
+    def available(self) -> bool:
+        return self._connection.is_connected()
 
     async def connect(self) -> bool:
         return await self._connection.connect()
