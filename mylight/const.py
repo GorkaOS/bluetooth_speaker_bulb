@@ -48,7 +48,7 @@ class SetLightFunction(Enum):
     power = 0x05
     effect = 0x06
     color_temperature = 0x07
-    white_effect = 0x09
+    white = 0x09
 
 
 class GetLightFunction(Enum):
@@ -114,15 +114,15 @@ class Effects(Enum):
     music = bytearray([SetLightFunction.effect.value, LightEffect.music.value])
 
     white = bytearray(
-        [SetLightFunction.white_effect.value, WhiteEffect.white.value])
+        [SetLightFunction.white.value, WhiteEffect.white.value])
     naturelight = bytearray(
-        [SetLightFunction.white_effect.value, WhiteEffect.naturelight.value])
+        [SetLightFunction.white.value, WhiteEffect.naturelight.value])
     sunlight = bytearray(
-        [SetLightFunction.white_effect.value, WhiteEffect.sunlight.value])
+        [SetLightFunction.white.value, WhiteEffect.sunlight.value])
     sunset = bytearray(
-        [SetLightFunction.white_effect.value, WhiteEffect.sunset.value])
+        [SetLightFunction.white.value, WhiteEffect.sunset.value])
     candlelight = bytearray(
-        [SetLightFunction.white_effect.value, WhiteEffect.candlelight.value])
+        [SetLightFunction.white.value, WhiteEffect.candlelight.value])
 
 
 class SetTimerFunction(Enum):

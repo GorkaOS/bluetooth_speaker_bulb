@@ -86,6 +86,7 @@ class Light():
         :param rgb_color: color as a list of 3 values between 0 and 255
         """
         self._rgb = rgb
+        self._white = False
         return protocol.encode_msg(
             const.SetBulbCategory.light.value,
             const.SetLightFunction.color.value,
@@ -98,9 +99,10 @@ class Light():
 
         """
         self._white = True
+        self._rgb = None
         return protocol.encode_msg(
             const.SetBulbCategory.light.value,
-            const.SetLightFunction.white_effect.value,
+            const.SetLightFunction.white.value,
             const.Commands.ON.value
         )
 
@@ -122,10 +124,16 @@ class Light():
         :param effect: An effect
         """
         self._effect = effect
+        c = const.Effects[effect].value[0]
+        e = const.Effects[effect].value[1]
+        if c == const.SetLightFunction.white:
+            self._white = True
+        else:
+            self._white = False
         return protocol.encode_msg(
             const.SetBulbCategory.light.value,
-            const.Effects[effect].value[0],
-            const.Effects[effect].value[1]
+            c,
+            e
         )
 
     @property
