@@ -15,7 +15,7 @@ class Light():
         self._warm: int = None
         self._temperature: int = self._cold
         self._rgb: list = None
-        self._white: bool = None
+        self._white: bool = True
         self._effect_id: int = None
         self._effect: str = None
 
@@ -106,15 +106,15 @@ class Light():
             const.Commands.ON.value
         )
 
-    def set_color_temperature(self, temperature, with_response=True):
+    def set_white_intensity(self, intensity: int):
         """
         Set white intensity
         ;param intensity: value between 1..255
         """
         return protocol.encode_msg(
             const.SetBulbCategory.lamp.value,
-            const.SetLampFunction.color_temperature.value,
-            temperature
+            const.SetLightFunction.white_intensity.value,
+            intensity
         )
 
     def set_effect(self, effect):

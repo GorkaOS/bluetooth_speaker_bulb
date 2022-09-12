@@ -82,8 +82,8 @@ class Bulb():
     async def set_color_rgb(self, rgb: list) -> bool:
         return await self.send(self._light.set_color_rgb(rgb=rgb))
 
-    async def set_color_temperature(self, temperature: int) -> bool:
-        return await self.send(self._light.set_color_temperature(temperature=temperature))
+    async def set_white_intensity(self, intensity: int) -> bool:
+        return await self.send(self._light.set_white_intensity(intensity=intensity))
 
     async def set_white(self) -> bool:
         return await self.send(self._light.set_white())

@@ -47,7 +47,7 @@ class SetLightFunction(Enum):
     color = 0x02
     power = 0x05
     effect = 0x06
-    color_temperature = 0x07
+    white_intensity = 0x07
     white = 0x09
 
 
