@@ -13,7 +13,8 @@ class Light():
         self._brightness: int = None
         self._cold: int = None
         self._warm: int = None
-        self._rgb_color: list = None
+        self._temperature: int = self._cold
+        self._rgb: list = None
         self._white: bool = None
         self._effect_id: int = None
         self._effect: str = None
@@ -23,7 +24,8 @@ class Light():
         self._brightness = raw_data[DATA_LIGHT]['brightness']
         self._cold = raw_data[DATA_LIGHT]['cold']
         self._warm = raw_data[DATA_LIGHT]['warm']
-        self._rgb_color = [
+        self._temperature = self._cold
+        self._rgb = [
             raw_data[DATA_LIGHT]['r'],
             raw_data[DATA_LIGHT]['g'],
             raw_data[DATA_LIGHT]['b']
@@ -33,7 +35,7 @@ class Light():
         if (self._effect_id > 0):
             try:
                 self._effect_id -= 1
-                self._effect = const.LightEffect(self._effect_id).name
+                self._effect = const.Effects(self._effect_id).name
             except ValueError:
                 pass
         else:
@@ -77,17 +79,17 @@ class Light():
             brightness
         )
 
-    def set_rgb_color(self, rgb_color):
+    def set_color_rgb(self, rgb):
         """
         Change bulb's color
 
         :param rgb_color: color as a list of 3 values between 0 and 255
         """
-        self._rgb_color = rgb_color
+        self._rgb = rgb
         return protocol.encode_msg(
             const.SetBulbCategory.light.value,
             const.SetLightFunction.color.value,
-            rgb_color
+            rgb
         )
 
     def set_white(self):
@@ -102,6 +104,17 @@ class Light():
             const.Commands.ON.value
         )
 
+    def set_color_temperature(self, temperature, with_response=True):
+        """
+        Set white intensity
+        ;param intensity: value between 1..255
+        """
+        return protocol.encode_msg(
+            const.SetBulbCategory.lamp.value,
+            const.SetLampFunction.color_temperature.value,
+            temperature
+        )
+
     def set_effect(self, effect):
         """
         Set an effect
@@ -111,8 +124,8 @@ class Light():
         self._effect = effect
         return protocol.encode_msg(
             const.SetBulbCategory.light.value,
-            const.SetLightFunction.effect.value,
-            const.LightEffect[effect].value
+            const.Effects[effect].value[0],
+            const.Effects[effect].value[1]
         )
 
     @property
@@ -128,7 +141,7 @@ class Light():
     @property
     def rgb_color(self) -> list:
         """Get color."""
-        return self._rgb_color
+        return self._rgb
 
     @property
     def white(self) -> bool:
@@ -144,3 +157,8 @@ class Light():
     def effect_id(self) -> int:
         """Get effect """
         return self._effect_id
+
+    @property
+    def temperature(self) -> int:
+        """Return if temperature is on or off"""
+        return self._temperature

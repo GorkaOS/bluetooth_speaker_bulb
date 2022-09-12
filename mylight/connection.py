@@ -221,16 +221,12 @@ class Connection():
             return True
         return False
 
-    # @connection_required
+    @connection_required
     async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID):
-        if not self.is_connected:
-            await self.connect()
         await self._client.write_gatt_char(UUID, msg, response=True)
 
-    # @connection_required
+    @connection_required
     async def read_cmd(self, UUID: UUID = RECIVE_UUID) -> bytearray:
-        if not self.is_connected:
-            await self.connect()
         return await self._client.read_gatt_char(UUID, respone=True)
 
     async def find_device_by_address(

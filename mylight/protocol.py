@@ -89,8 +89,8 @@ def decode_light_info(buffer):
     5:  00  R
     6:  00  G
     7:  00  B
-    8:  75  white intensity cold (8 + 9, (7*16+5)+(8*16+a) = 0xff)
-    9:  8a  white intensity warm (8 + 9, (7*16+5)+(8*16+a) = 0xff)
+    8:  75  white intensity cold. buffer 8 + 9; int(0x75)+int(0x8a) = 255; hex((7*16+5)+(8*16+10)) = 0xff
+    9:  8a  white intensity warm. buffer 8 + 9; int(0x75)+int(0x8a) = 255; hex((7*16+5)+(8*16+10)) = 0xff
     10: 8d  brightness
     11: 01  on/off
     12: 00  effect

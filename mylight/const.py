@@ -47,7 +47,7 @@ class SetLightFunction(Enum):
     color = 0x02
     power = 0x05
     effect = 0x06
-    # white_intensity = 0x07 # does nothing, only changes brightness
+    color_temperature = 0x07
     white_effect = 0x09
 
 
@@ -74,7 +74,7 @@ class LightEffect(Enum):
     flash = 0x08                        #: mylight
     breathing = 0x09                    #: mylight
     feel_green = 0x0a                   #: mylight
-    sunset = 0x0b                       #: mylight
+    sunsets = 0x0b                      #: mylight
     music = 0x0c                        #: mylight
 
 
@@ -87,6 +87,42 @@ class WhiteEffect(Enum):
     sunlight = 0x03
     sunset = 0x04
     candlelight = 0x05
+
+
+class Effects(Enum):
+    none = bytearray([SetLightFunction.effect.value, LightEffect.none.value])
+    rainbow = bytearray(
+        [SetLightFunction.effect.value, LightEffect.rainbow.value])
+    flowing = bytearray(
+        [SetLightFunction.effect.value, LightEffect.flowing.value])
+    heartbeat = bytearray(
+        [SetLightFunction.effect.value, LightEffect.heartbeat.value])
+    red_pulse = bytearray(
+        [SetLightFunction.effect.value, LightEffect.red_pulse.value])
+    green_pulse = bytearray(
+        [SetLightFunction.effect.value, LightEffect.green_pulse.value])
+    blue_pulse = bytearray(
+        [SetLightFunction.effect.value, LightEffect.blue_pulse.value])
+    alarm = bytearray([SetLightFunction.effect.value, LightEffect.alarm.value])
+    flash = bytearray([SetLightFunction.effect.value, LightEffect.flash.value])
+    breathing = bytearray(
+        [SetLightFunction.effect.value, LightEffect.breathing.value])
+    feel_green = bytearray(
+        [SetLightFunction.effect.value, LightEffect.feel_green.value])
+    sunsets = bytearray(
+        [SetLightFunction.effect.value, LightEffect.sunsets.value])
+    music = bytearray([SetLightFunction.effect.value, LightEffect.music.value])
+
+    white = bytearray(
+        [SetLightFunction.white_effect.value, WhiteEffect.white.value])
+    naturelight = bytearray(
+        [SetLightFunction.white_effect.value, WhiteEffect.naturelight.value])
+    sunlight = bytearray(
+        [SetLightFunction.white_effect.value, WhiteEffect.sunlight.value])
+    sunset = bytearray(
+        [SetLightFunction.white_effect.value, WhiteEffect.sunset.value])
+    candlelight = bytearray(
+        [SetLightFunction.white_effect.value, WhiteEffect.candlelight.value])
 
 
 class SetTimerFunction(Enum):
@@ -154,27 +190,29 @@ class SpeakerEffect(Enum):
     bass = 0x03
     jazz = 0x04
 
+
 class SpeakerEqualizerLevelMin(Enum):
     """
     An enum of spekar min
     """
     volume = 0x00
-    frequency_80 =  0x15
+    frequency_80 = 0x15
     frequency_200 = 0x4d
     frequency_500 = 0x4f
-    frequency_2k =  0x48
-    frequency_8k =  0x48
+    frequency_2k = 0x48
+    frequency_8k = 0x48
+
 
 class SpeakerEqualizerLevelMax(Enum):
     """
     An enum of spekar max
     """
     volume = 0x1f
-    frequency_80 =  0x00
+    frequency_80 = 0x00
     frequency_200 = 0x09
     frequency_500 = 0x09
-    frequency_2k =  0x0d
-    frequency_8k =  0x0d
+    frequency_2k = 0x0d
+    frequency_8k = 0x0d
 
 
 class SpeakerEffectEqualizer(Enum):
@@ -196,4 +234,3 @@ class SpeakerEffectEqualizer(Enum):
     jazz = \
         {'frequency_80': 72, 'frequency_200': 70, 'frequency_500': 61,
             'frequency_2k': 48, 'frequency_8k': 34}
-

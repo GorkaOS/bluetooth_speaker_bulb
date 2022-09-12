@@ -5,10 +5,10 @@
     Unofficial Python API to control My Light bulbs over Bluetooth
 """
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 
 from mylight.bulb import Bulb
 from mylight.connection import discover_mylight_lamps, find_device_by_address, model_from_name
 from bleak import BleakError
-from mylight.const import LightEffect, SpeakerEffect
+from mylight.const import Effects, SpeakerEffect
