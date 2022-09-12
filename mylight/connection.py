@@ -31,7 +31,7 @@ def connection_required(func):
     """
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
-        if not self._client.is_connected:
+        if self._client is None:
             raise Exception("Not connected")
 
         return func(self, *args, **kwargs)
