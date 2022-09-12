@@ -13,7 +13,7 @@ class Light():
         self._brightness: int = None
         self._cold: int = None
         self._warm: int = None
-        self._temperature: int = self._cold
+        self._white_intensity: int = None
         self._rgb: list = None
         self._white: bool = True
         self._effect_id: int = None
@@ -24,7 +24,7 @@ class Light():
         self._brightness = raw_data[DATA_LIGHT]['brightness']
         self._cold = raw_data[DATA_LIGHT]['cold']
         self._warm = raw_data[DATA_LIGHT]['warm']
-        self._temperature = self._cold
+        self._white_intensity = self._cold
         self._rgb = [
             raw_data[DATA_LIGHT]['r'],
             raw_data[DATA_LIGHT]['g'],
@@ -111,6 +111,7 @@ class Light():
         Set white intensity
         ;param intensity: value between 1..255
         """
+        self._white_intensity = intensity
         return protocol.encode_msg(
             const.SetBulbCategory.lamp.value,
             const.SetLightFunction.white_intensity.value,
