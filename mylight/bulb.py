@@ -90,7 +90,7 @@ class Bulb():
 
     async def set_effect(self, effect: str) -> bool:
         return await self.send(self._light.set_effect(effect=effect))
-
+ 
     async def set_volume(self, volume: int) -> bool:
         return await self.send(self._speaker.set_speaker_level(level=volume))
 
@@ -99,3 +99,9 @@ class Bulb():
 
     async def set_frequency_level(self, frequency: str, level: int) -> bool:
         return await self.send(self._speaker.set_speaker_level(level=level, function=frequency))
+
+    def get_light_effects(self) -> list:
+        return [effect.name for effect in const.Effects]
+
+    def get_speaker_effects(self) -> list:
+        return [effect.name for effect in const.SpeakerEffect]
