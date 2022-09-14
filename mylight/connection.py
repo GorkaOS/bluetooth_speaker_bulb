@@ -173,7 +173,7 @@ class Connection():
 
         # reconnect and send test message, read bulb name
         try:
-            await self.connect()
+            await self.connect(num_tries=10)
             await asyncio.sleep(0.7)
             await self.get_device_name()
             await asyncio.sleep(0.7)
