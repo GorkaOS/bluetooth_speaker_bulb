@@ -160,18 +160,23 @@ class Connection():
         """
         return self._client.is_connected
 
-    def test_connection(self) -> bool:
+    async def test_connection(self) -> bool:
         """
         Test if the connection is still alive
 
         :return: True if connected
         """
-        if not self.is_connected():
-            return False
+        if self.is_connected():
+            return True
 
-        # send test message, read bulb name
+        await self.disconnect()
+
+        # reconnect and send test message, read bulb name
         try:
-            self.get_device_name()
+            await self.connect()
+            await asyncio.sleep(0.7)
+            await self.get_device_name()
+            await asyncio.sleep(0.7)
         except BleakError:
             self.disconnect()
             return False
@@ -221,13 +226,14 @@ class Connection():
             return True
         return False
 
-    @connection_required
     async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID):
-        await self._client.write_gatt_char(UUID, msg, response=True)
+        if self.test_connection():
+            await self._client.write_gatt_char(UUID, msg, response=True)
 
-    @connection_required
     async def read_cmd(self, UUID: UUID = RECIVE_UUID) -> bytearray:
-        return await self._client.read_gatt_char(UUID, respone=True)
+        if self.test_connection():
+            return await self._client.read_gatt_char(UUID, respone=True)
+        return None
 
     async def find_device_by_address(
         address: str, timeout: float = 20.0
