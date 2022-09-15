@@ -170,6 +170,7 @@ class Connection():
             return True
 
         await self.disconnect()
+        await asyncio.sleep(2.0)
 
         # reconnect and send test message, read bulb name
         try:
@@ -179,6 +180,7 @@ class Connection():
             await asyncio.sleep(0.7)
         except BleakError:
             self.disconnect()
+            await asyncio.sleep(2.0)
             return False
         except BrokenPipeError:
             self._client = None
