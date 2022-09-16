@@ -185,19 +185,16 @@ class Connection():
                                       const.Commands.REQ_DATA.value)
             await self.send_cmd(msg)
             buffer = await self.read_cmd()
-            if buffer: 
-                _LOGGER.debug(f"Connection get_category_info, buffer: {buffer}")
+            if buffer:
+                _LOGGER.debug(
+                    f"Connection get_category_info, buffer: {buffer}")
                 buffer_list.append(protocol.decode_function(buffer))
             else:
-                _LOGGER.debug(f"Connection get_category_info, buffer empty, buffer {buffer}")
+                _LOGGER.debug(
+                    f"Connection get_category_info, buffer empty, buffer {buffer}")
 
         self.run_state_changed_cb()
         return buffer_list
-
-    def validate_response(self, rsp) -> bool:
-        if rsp['rsp'] == ['wr']:
-            return True
-        return False
 
     async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID, wait_notif: float = 0.5) -> bool:
         if not self._client.is_connected:
@@ -222,14 +219,12 @@ class Connection():
             except BleakError as err:
                 _LOGGER.error(f"Send Cmd: BleakError: {err}")
 
-
     async def find_device_by_address(
         address: str, timeout: float = 20.0
     ) -> BLEDevice:
         from bleak import BleakScanner
 
         return await BleakScanner.find_device_by_address(address.upper(), timeout=timeout)
-
 
     async def read_services(self) -> None:
         if self._client is None:
@@ -263,4 +258,5 @@ class Connection():
                             f"____[Descriptor] {descriptor}) | Value: {str(value)}"
                         )
                     except Exception as e:
-                        _LOGGER.error(f"____[Descriptor] {descriptor}) | Value: {e}")
+                        _LOGGER.error(
+                            f"____[Descriptor] {descriptor}) | Value: {e}")
