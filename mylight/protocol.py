@@ -43,7 +43,7 @@ def decode_function(buffer):
 
     :param buffer: buffer to decode not pretty
     """
-    if len(buffer) < 1:
+    if len(buffer) < 1 or buffer is None:
         return []
     c = buffer[3]
     f = buffer[4]

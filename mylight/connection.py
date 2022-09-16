@@ -224,3 +224,38 @@ class Connection():
         from bleak import BleakScanner
 
         return await BleakScanner.find_device_by_address(address.upper(), timeout=timeout)
+
+
+    async def read_services(self) -> None:
+        if self._client is None:
+            return
+        for service in self._client.services:
+            _LOGGER.info(f"[Service] {service}")
+            for char in service.characteristics:
+                if "read" in char.properties:
+                    try:
+                        value = bytes(await self._client.read_gatt_char(char.uuid))
+                        _LOGGER.info(
+                            f"__[Characteristic] {char} ({','.join(char.properties)}), Value: {str(value)}"
+                        )
+                    except Exception as e:
+                        _LOGGER.error(
+                            f"__[Characteristic] {char} ({','.join(char.properties)}), Value: {e}"
+                        )
+
+                else:
+                    value = None
+                    _LOGGER.info(
+                        f"__[Characteristic] {char} ({','.join(char.properties)}), Value: {value}"
+                    )
+
+                for descriptor in char.descriptors:
+                    try:
+                        value = bytes(
+                            await self._client.read_gatt_descriptor(descriptor.handle)
+                        )
+                        _LOGGER.info(
+                            f"____[Descriptor] {descriptor}) | Value: {str(value)}"
+                        )
+                    except Exception as e:
+                        _LOGGER.error(f"____[Descriptor] {descriptor}) | Value: {e}")
