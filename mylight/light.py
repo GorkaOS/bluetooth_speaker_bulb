@@ -22,7 +22,10 @@ class Light():
         self._effect: str = None
 
     def update(self, raw_data: list):
-        _LOGGER.debug(f"update light, raw_data {raw_data} ")
+        if raw_data[DATA_LIGHT]:
+            _LOGGER.debug(f"update light, failed, raw_data {raw_data[DATA_LIGHT]} ")
+            return
+        _LOGGER.debug(f"update light, updating, raw_data {raw_data[DATA_LIGHT]} ")
         self._on = raw_data[DATA_LIGHT]['on']
         self._brightness = raw_data[DATA_LIGHT]['brightness']
         self._cold = raw_data[DATA_LIGHT]['cold']

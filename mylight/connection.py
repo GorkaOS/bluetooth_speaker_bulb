@@ -185,9 +185,13 @@ class Connection():
                                       const.Commands.REQ_DATA.value)
             await self.send_cmd(msg)
             buffer = await self.read_cmd()
-            _LOGGER.debug(buffer)
-            buffer_list.append(protocol.decode_function(buffer))
-            self.run_state_changed_cb()
+            if buffer: 
+                _LOGGER.debug(f"Connection get_category_info, buffer: {buffer}")
+                buffer_list.append(protocol.decode_function(buffer))
+            else:
+                _LOGGER.debug(f"Connection get_category_info, buffer empty, buffer {buffer}")
+
+        self.run_state_changed_cb()
         return buffer_list
 
     def validate_response(self, rsp) -> bool:
