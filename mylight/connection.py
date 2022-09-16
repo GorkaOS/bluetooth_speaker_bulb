@@ -209,7 +209,6 @@ class Connection():
         return False
 
     async def read_cmd(self, UUID: UUID = RECIVE_UUID) -> bytearray:
-        await self.connect()
         if self._client is not None:
             try:
                 return await self._client.read_gatt_char(UUID, respone=True)
