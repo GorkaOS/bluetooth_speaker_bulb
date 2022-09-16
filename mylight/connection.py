@@ -28,20 +28,6 @@ class Conn(Enum):
     DISCONNECTED = 1
 
 
-def connection_required(func):
-    """Raise an exception before calling the actual function if the device is
-    not connected.
-    """
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        if self._client is None:
-            raise Exception("Not connected")
-
-        return func(self, *args, **kwargs)
-
-    return wrapper
-
-
 def model_from_name(ble_name: str) -> str:
     model = MODEL_UNKNOWN
     if ble_name.startswith("MyLight"):
