@@ -153,7 +153,7 @@ class Connection():
         """
         :return: True if connected
         """
-        return self._client.is_connected
+        return self._client.is_connected or self._client is None
 
     async def get_services(self) -> None:
         """
