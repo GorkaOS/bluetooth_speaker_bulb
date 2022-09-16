@@ -216,7 +216,6 @@ class Connection():
                 _LOGGER.error("Send Cmd: Timeout error")
             except BleakError as err:
                 _LOGGER.error(f"Send Cmd: BleakError: {err}")
-        return None
 
 
     async def find_device_by_address(
