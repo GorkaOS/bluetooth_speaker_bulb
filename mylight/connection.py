@@ -19,6 +19,9 @@ CONTROL_UUID: UUID = "0000a040-0000-1000-8000-00805f9b34fb"
 NAME_UUID: UUID = "00002a00-0000-1000-8000-00805f9b34fb"
 NOTIFY_HANDLE: hex = 0x8
 
+MODEL_MYLIGHT = "MyLight"
+MODEL_UNKNOWN = "Unknown"
+
 
 class Conn(Enum):
     CONNECTED = 0
@@ -40,7 +43,9 @@ def connection_required(func):
 
 
 def model_from_name(ble_name: str) -> str:
-    model = "Mylight"
+    model = MODEL_UNKNOWN
+    if ble_name.startswith("MyLight"):
+        model = MODEL_MYLIGHT
     return model
 
 
@@ -56,7 +61,7 @@ async def discover_mylight_lamps(
     scanner: type[BleakScanner],
 ) -> list[dict[str, Any]]:
     """Scanning feature
-    Scan the BLE neighborhood for an Yeelight lamp
+    Scan the BLE neighborhood for an MyLight lamp
     This method requires the script to be launched as root
     Returns the list of nearby lamps
     """
@@ -66,6 +71,10 @@ async def discover_mylight_lamps(
     devices = await scanner.discover()
     for d in devices:
         model = model_from_name(d.name)
+        if model != MODEL_UNKNOWN:
+            lamp_list.append({"ble_device": d, "model": model})
+            _LOGGER.info(
+                f"found {model} with mac: {d.address}, details:{d.details}")
     return lamp_list
 
 
@@ -160,34 +169,6 @@ class Connection():
         """
         return self._client.is_connected
 
-    async def test_connection(self) -> bool:
-        """
-        Test if the connection is still alive
-
-        :return: True if connected
-        """
-        if self.is_connected():
-            return True
-
-        await self.disconnect()
-        await asyncio.sleep(2.0)
-
-        # reconnect and send test message, read bulb name
-        try:
-            await self.connect(num_tries=10)
-            await asyncio.sleep(0.7)
-            await self.get_device_name()
-            await asyncio.sleep(0.7)
-        except BleakError:
-            self.disconnect()
-            await asyncio.sleep(2.0)
-            return False
-        except BrokenPipeError:
-            self._client = None
-            return False
-
-        return True
-
     async def get_services(self) -> None:
         """
         :return: Services
@@ -228,14 +209,30 @@ class Connection():
             return True
         return False
 
-    async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID):
-        if self.test_connection():
-            await self._client.write_gatt_char(UUID, msg, response=True)
+    async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID, wait_notif: float = 0.5) -> bool:
+        await self.connect()
+        if self._client is not None:
+            try:
+                await self._client.write_gatt_char(UUID, msg, response=True)
+                await asyncio.sleep(wait_notif)
+                return True
+            except asyncio.TimeoutError:
+                _LOGGER.error("Send Cmd: Timeout error")
+            except BleakError as err:
+                _LOGGER.error(f"Send Cmd: BleakError: {err}")
+        return False
 
     async def read_cmd(self, UUID: UUID = RECIVE_UUID) -> bytearray:
-        if self.test_connection():
-            return await self._client.read_gatt_char(UUID, respone=True)
+        await self.connect()
+        if self._client is not None:
+            try:
+                return await self._client.read_gatt_char(UUID, respone=True)
+            except asyncio.TimeoutError:
+                _LOGGER.error("Send Cmd: Timeout error")
+            except BleakError as err:
+                _LOGGER.error(f"Send Cmd: BleakError: {err}")
         return None
+
 
     async def find_device_by_address(
         address: str, timeout: float = 20.0
