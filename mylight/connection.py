@@ -149,12 +149,6 @@ class Connection():
         print("Notification {0}: {1}".format(sender, data))
         self.run_state_changed_cb()
 
-    def is_connected(self) -> bool:
-        """
-        :return: True if connected
-        """
-        return self._client.is_connected or self._client is None
-
     async def get_services(self) -> None:
         """
         :return: Services
@@ -192,6 +186,8 @@ class Connection():
             else:
                 _LOGGER.debug(
                     f"Connection get_category_info, buffer empty, buffer {buffer}")
+                buffer_list = None
+                break
 
         self.run_state_changed_cb()
         return buffer_list

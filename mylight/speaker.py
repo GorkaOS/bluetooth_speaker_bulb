@@ -1,5 +1,6 @@
+import logging
 from mylight import const, protocol
-
+_LOGGER = logging.getLogger(__name__)
 
 DATA_VOLUME = 0
 DATA_EQ = 1
@@ -18,6 +19,10 @@ class Speaker():
         self._speaker_effect: str = None
 
     def update(self, raw_data: list):
+        if not raw_data:
+            _LOGGER.debug(f"Updating speaker failed, raw_data: {raw_data}")
+            return
+        _LOGGER.debug(f"Updating speaker, raw_data: {raw_data}")
         self._mute = False if raw_data[DATA_VOLUME]['volume'] > 0 else True
 
         min_level = const.SpeakerEqualizerLevelMin.volume.value
