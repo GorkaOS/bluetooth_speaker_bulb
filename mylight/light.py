@@ -1,4 +1,6 @@
+import logging
 from mylight import const, protocol
+_LOGGER = logging.getLogger(__name__)
 
 DATA_LIGHT = 0
 
@@ -20,6 +22,7 @@ class Light():
         self._effect: str = None
 
     def update(self, raw_data: list):
+        _LOGGER.debug(f"update light, raw_data {raw_data} ")
         self._on = raw_data[DATA_LIGHT]['on']
         self._brightness = raw_data[DATA_LIGHT]['brightness']
         self._cold = raw_data[DATA_LIGHT]['cold']

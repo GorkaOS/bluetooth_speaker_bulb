@@ -12,16 +12,6 @@ class Bulb():
         self._light = Light()
         self._speaker = Speaker()
 
-    @property
-    def available(self) -> bool:
-        return self._connection.is_connected()
-
-    def add_callback_on_state_changed(self, func: Callable[[], None]) -> None:
-        """
-        Register callbacks to be called when lamp state is received or bt disconnected
-        """
-        self._connection._state_callbacks.append(func)
-
     async def connect(self) -> bool:
         return await self._connection.connect()
 
