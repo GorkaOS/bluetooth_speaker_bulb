@@ -193,9 +193,9 @@ class Connection():
         return buffer_list
 
     async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID, wait_notif: float = 0.5) -> bool:
-        if not self._client.is_connected:
-            await self.connect()
         if self._client is not None:
+            if not self._client.is_connected:
+                await self.connect()
             try:
                 await self._client.write_gatt_char(UUID, msg, response=True)
                 await asyncio.sleep(wait_notif)
