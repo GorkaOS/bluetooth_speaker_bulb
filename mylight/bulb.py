@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable
 from mylight import const
 from mylight.connection import Connection
@@ -70,7 +71,9 @@ class Bulb():
         return await self.send(self._light.set_brightness(brightness=brightness))
 
     async def set_color_rgb(self, rgb: list) -> bool:
-        return await self.send(self._light.set_color_rgb(rgb=rgb))
+        result = await self.send(self._light.set_color_rgb(rgb=rgb))
+        asyncio.sleep(0.7)
+        return result and await self.send(self._light.set_brightness(self._light.brightness))
 
     async def set_white_intensity(self, intensity: int) -> bool:
         return await self.send(self._light.set_white_intensity(intensity=intensity))
