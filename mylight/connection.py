@@ -196,6 +196,7 @@ class Connection():
             if self._client.is_connected:
                 try:
                     await self.get_device_name
+                    await asyncio.sleep(0.1)
                 except asyncio.TimeoutError:
                     _LOGGER.error("Test Connection: Timeout error")
                 except BrokenPipeError as err:
@@ -207,7 +208,7 @@ class Connection():
         return False
 
     async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID, wait_notif: float = 0.5) -> bool:
-        if not self.test_connection:
+        if not await self.test_connection():
             await self.connect()
         try:
             await self._client.write_gatt_char(UUID, msg, response=True)
@@ -220,7 +221,7 @@ class Connection():
         return False
 
     async def read_cmd(self, UUID: UUID = RECIVE_UUID) -> bytearray:
-        if not self.test_connection:
+        if not await self.test_connection():
             await self.connect()
         try:
             return await self._client.read_gatt_char(UUID, respone=True)
