@@ -76,7 +76,6 @@ class Connection():
         self._retries = retries
         self._state_callbacks: list[Callable[[], None]] = []
         self._read_service = False
-        self._conn = Conn.DISCONNECTED
 
     def add_callback_on_state_changed(self, func: Callable[[], None]) -> None:
         """
@@ -95,7 +94,6 @@ class Connection():
             return
         _LOGGER.debug(
             f"Client with address {client.address} got disconnected!")
-        self._conn = Conn.DISCONNECTED
         self.run_state_changed_cb()
 
     async def connect(self, num_tries: int = 3) -> None:
@@ -124,9 +122,8 @@ class Connection():
             await self._client.start_notify(NOTIFY_HANDLE, self.notification_handler)
             await asyncio.sleep(0.3)
             await self.get_services()
-            self._conn == Conn.CONNECTED
 
-            _LOGGER.debug(f"Connection status: {self._conn}")
+            _LOGGER.debug(f"Connection status: Connected")
 
         except asyncio.TimeoutError:
             _LOGGER.error("Connection Timeout error")
@@ -138,11 +135,12 @@ class Connection():
             return
         try:
             await self._client.disconnect()
+            asyncio.sleep(5.0)
         except asyncio.TimeoutError:
             _LOGGER.error("Disconnection: Timeout error")
         except BleakError as err:
             _LOGGER.error(f"Disconnection: BleakError: {err}")
-        self._conn = Conn.DISCONNECTED
+        self._client = None
 
     def notification_handler(self, sender, data):
         """Simple notification handler which prints the data received."""
@@ -192,28 +190,45 @@ class Connection():
         self.run_state_changed_cb()
         return buffer_list
 
-    async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID, wait_notif: float = 0.5) -> bool:
-        if self._client is not None:
-            if not self._client.is_connected:
-                await self.connect()
-            try:
-                await self._client.write_gatt_char(UUID, msg, response=True)
-                await asyncio.sleep(wait_notif)
+    async def test_connection(self) -> bool:
+        _LOGGER.debug(f"Test Connection")
+        if self._client:
+            if self._client.is_connected:
+                try:
+                    await self.get_device_name
+                except asyncio.TimeoutError:
+                    _LOGGER.error("Test Connection: Timeout error")
+                except BrokenPipeError as err:
+                    _LOGGER.error(f"Test Connection: BrokenPipeError: {err}")
+                except BleakError as err:
+                    _LOGGER.error(f"Test Connection: BleakError: {err}")
                 return True
-            except asyncio.TimeoutError:
-                _LOGGER.error("Send Cmd: Timeout error")
-            except BleakError as err:
-                _LOGGER.error(f"Send Cmd: BleakError: {err}")
+            await self.disconnect()
+        return False
+
+    async def send_cmd(self, msg: bytearray, UUID: UUID = CONTROL_UUID, wait_notif: float = 0.5) -> bool:
+        if not self.test_connection:
+            await self.connect()
+        try:
+            await self._client.write_gatt_char(UUID, msg, response=True)
+            await asyncio.sleep(wait_notif)
+            return True
+        except asyncio.TimeoutError:
+            _LOGGER.error("Send Cmd: Timeout error")
+        except BleakError as err:
+            _LOGGER.error(f"Send Cmd: BleakError: {err}")
         return False
 
     async def read_cmd(self, UUID: UUID = RECIVE_UUID) -> bytearray:
-        if self._client is not None:
-            try:
-                return await self._client.read_gatt_char(UUID, respone=True)
-            except asyncio.TimeoutError:
-                _LOGGER.error("Send Cmd: Timeout error")
-            except BleakError as err:
-                _LOGGER.error(f"Send Cmd: BleakError: {err}")
+        if not self.test_connection:
+            await self.connect()
+        try:
+            return await self._client.read_gatt_char(UUID, respone=True)
+        except asyncio.TimeoutError:
+            _LOGGER.error("Read Cmd: Timeout error")
+        except BleakError as err:
+            self.disconnect()
+            _LOGGER.error(f"Read Cmd: BleakError: {err}")
 
     async def find_device_by_address(
         address: str, timeout: float = 20.0
