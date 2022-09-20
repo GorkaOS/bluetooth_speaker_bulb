@@ -197,13 +197,13 @@ class Connection():
                 try:
                     await self.get_device_name()
                     await asyncio.sleep(0.1)
+                    return True
                 except asyncio.TimeoutError:
                     _LOGGER.error("Test Connection: Timeout error")
                 except BrokenPipeError as err:
                     _LOGGER.error(f"Test Connection: BrokenPipeError: {err}")
                 except BleakError as err:
                     _LOGGER.error(f"Test Connection: BleakError: {err}")
-                return True
             await self.disconnect()
         return False
 
