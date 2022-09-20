@@ -191,7 +191,7 @@ class Connection():
         return buffer_list
 
     async def test_connection(self) -> bool:
-        _LOGGER.debug(f"Test Connection")
+        _LOGGER.debug("Test Connection")
         if self._client:
             if self._client.is_connected:
                 try:
