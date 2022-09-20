@@ -160,7 +160,7 @@ class Connection():
         """
         :return: Device name
         """
-        buffer: bytearray = await self.read_cmd(NAME_UUID)
+        buffer: bytearray = await self._client.read_gatt_char(NAME_UUID, respone=True)
         return buffer.decode('utf-8')
 
     async def get_category_info(self, category, functions) -> list:
