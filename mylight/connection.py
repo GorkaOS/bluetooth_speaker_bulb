@@ -135,7 +135,7 @@ class Connection():
             return
         try:
             await self._client.disconnect()
-            asyncio.sleep(5.0)
+            await asyncio.sleep(2.0)
         except asyncio.TimeoutError:
             _LOGGER.error("Disconnection: Timeout error")
         except BleakError as err:
