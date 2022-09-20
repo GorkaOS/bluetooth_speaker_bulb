@@ -5,7 +5,7 @@
     Unofficial Python API to control My Light bulbs over Bluetooth
 """
 
-__version__ = "0.0.27"
+__version__ = "0.0.28"
 
 
 from mylight.bulb import Bulb
