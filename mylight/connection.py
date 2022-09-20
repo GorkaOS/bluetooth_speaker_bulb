@@ -195,7 +195,7 @@ class Connection():
         if self._client:
             if self._client.is_connected:
                 try:
-                    await self.get_device_name
+                    await self.get_device_name()
                     await asyncio.sleep(0.1)
                 except asyncio.TimeoutError:
                     _LOGGER.error("Test Connection: Timeout error")
