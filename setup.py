@@ -4,21 +4,21 @@ import re
 
 __version__ = re.search(
     r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-    open('mylight/__init__.py').read()
+    open('alloyseed/__init__.py').read()
 ).group(1)
 
 setuptools.setup(
-    name='mylight',
+    name='alloyseed',
     version=__version__,
     description='Unofficial Python API to control '
-                'MyLight bulbs over Bluetooth',
-    long_description='See https://github.com/orrpan/mylight for more info,\
+                'Alloyseed bulbs over Bluetooth',
+    long_description='See https://github.com/orrpan/alloyseed for more info,\
          based on Betrees https://github.com/Betree/magicblue',
-    url='https://github.com/orrpan/mylight',
+    url='https://github.com/orrpan/alloyseed',
     author='Oskar Joelsson',
     author_email='',
     license='MIT',
-    packages=['mylight'],
+    packages=['alloyseed'],
     install_requires=[
         'bleak>=0.15.0',
         'webcolors'
@@ -26,7 +26,7 @@ setuptools.setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'mylight = mylight.magicblueshell:main',
+            'alloyseed = alloyseed.magicblueshell:main',
         ],
     },
     classifiers=[
@@ -35,5 +35,5 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English'
     ],
-    keywords=['bluetooth', 'bulb', 'my', 'mylight', 'blue', 'ble', 'iot']
+    keywords=['bluetooth', 'bulb', 'my', 'alloyseed', 'blue', 'ble', 'iot']
 )

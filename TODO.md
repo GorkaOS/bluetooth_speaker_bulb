@@ -1,7 +1,7 @@
 # Todo
 
-## MyLight Bulb
-* [ ] ~~Fix magicblueshell for both magicblue and mylight~~
+## Alloyseed Bulb
+* [ ] ~~Fix magicblueshell for both magicblue and alloyseed~~
 * [x] Encode
 * [x] Encode all messages of one func
 * [x] Checksum send
