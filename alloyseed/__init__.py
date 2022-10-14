@@ -5,7 +5,7 @@
     Unofficial Python API to control Alloyseed bulbs over Bluetooth
 """
 
-__version__ = "0.0.8"
+__version__ = "0.0.9"
 
 
 from alloyseed.bulb import Bulb
