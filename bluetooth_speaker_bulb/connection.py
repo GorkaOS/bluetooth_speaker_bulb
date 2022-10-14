@@ -4,14 +4,14 @@ import logging
 from enum import Enum
 from typing import Any, Callable
 from uuid import UUID
-import const
-import protocol
-
 
 from bleak import BleakClient, BleakError, BleakScanner
 from bleak.backends.client import BaseBleakClient
 from bleak.backends.device import BLEDevice
 from bleak_retry_connector import establish_connection
+
+from .const import *
+from .protocol import *
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -173,15 +173,15 @@ class Connection():
         """
         buffer_list = []
         for func in functions:
-            msg = protocol.encode_msg(category.value,
+            msg = encode_msg(category.value,
                                       func.value,
-                                      const.Commands.REQ_DATA.value)
+                                      Commands.REQ_DATA.value)
             await self.send_cmd(msg)
             buffer = await self.read_cmd()
             if buffer:
                 _LOGGER.debug(
                     f"Connection get_category_info, buffer: {buffer}")
-                buffer_list.append(protocol.decode_function(buffer))
+                buffer_list.append(decode_function(buffer))
             else:
                 _LOGGER.debug(
                     f"Connection get_category_info, buffer empty, buffer {buffer}")

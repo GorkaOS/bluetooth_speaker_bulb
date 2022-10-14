@@ -1,17 +1,20 @@
 import asyncio
 from typing import Callable
-import const
-import connection
-import light
-import speaker
+
+# import connection
 from bleak.backends.device import BLEDevice
+
+from .connection import Connection
+from .const import *
+from .light import Light
+from .speaker import Speaker
 
 
 class Bulb():
     def __init__(self, ble_device: BLEDevice) -> None:
-        self._connection = connection(ble_device, timeout=20, retries=3)
-        self._light = light()
-        self._speaker = speaker()
+        self._connection = Connection(ble_device, timeout=20, retries=3)
+        self._light = Light()
+        self._speaker = Speaker()
 
     async def connect(self) -> bool:
         return await self._connection.connect()
@@ -33,14 +36,14 @@ class Bulb():
 
     async def get_light_info(self) -> list:
         return await self.receive(
-            category=const.SetBulbCategory.light,
-            function=const.GetLightFunction
+            category=SetBulbCategory.light,
+            function=GetLightFunction
         )
 
     async def get_speaker_info(self) -> list:
         return await self.receive(
-            category=const.SetBulbCategory.speaker,
-            function=const.GetSpeakerFunction
+            category=SetBulbCategory.speaker,
+            function=GetSpeakerFunction
         )
 
     async def update(self) -> None:
@@ -94,7 +97,7 @@ class Bulb():
         return await self.send(self._speaker.set_speaker_level(level=level, function=frequency))
 
     def get_light_effects(self) -> list:
-        return [effect.name for effect in const.Effects]
+        return [effect.name for effect in Effects]
 
     def get_speaker_effects(self) -> list:
-        return [effect.name for effect in const.SpeakerEffect]
+        return [effect.name for effect in SpeakerEffect]

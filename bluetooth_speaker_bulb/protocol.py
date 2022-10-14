@@ -1,4 +1,4 @@
-import const
+from .const import *
 
 
 def encode_msg(category, function, data=[]):
@@ -50,25 +50,25 @@ def decode_function(buffer):
     c = buffer[3]
     f = buffer[4]
 
-    if c == const.GetBulbCategory.light.value:
-        if f == const.GetLightFunction.status.value:
+    if c == GetBulbCategory.light.value:
+        if f == GetLightFunction.status.value:
             return decode_light_info(buffer)
 
-    if c == const.GetBulbCategory.timer.value:
-        if f == const.GetTimerFunction.auto_light.value \
-                or f == const.GetTimerFunction.auto_music.value:
+    if c == GetBulbCategory.timer.value:
+        if f == GetTimerFunction.auto_light.value \
+                or f == GetTimerFunction.auto_music.value:
             return decode_time_auto(buffer)
 
-        if f == const.GetTimerFunction.alarm_1.value \
-                or f == const.GetTimerFunction.alarm_2.value \
-                or f == const.GetTimerFunction.alarm_3.value:
+        if f == GetTimerFunction.alarm_1.value \
+                or f == GetTimerFunction.alarm_2.value \
+                or f == GetTimerFunction.alarm_3.value:
             return decode_time_alarm(buffer)
 
-    if c == const.GetBulbCategory.speaker.value:
-        if f == const.GetSpeakerFunction.volume.value:
+    if c == GetBulbCategory.speaker.value:
+        if f == GetSpeakerFunction.volume.value:
             return decode_speaker_volume(buffer)
 
-        if f == const.GetSpeakerFunction.equalizer.value:
+        if f == GetSpeakerFunction.equalizer.value:
             return decode_speaker_equlizer(buffer)
 
     return []

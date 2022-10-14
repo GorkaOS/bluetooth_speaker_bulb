@@ -1,6 +1,8 @@
 import logging
-import const
-import protocol
+
+from .const import *
+from .protocol import *
+
 _LOGGER = logging.getLogger(__name__)
 
 DATA_LIGHT = 0
@@ -42,7 +44,7 @@ class Light():
         if (self._effect_id > 0):
             try:
                 self._effect_id -= 1
-                self._effect = const.Effects(self._effect_id).name
+                self._effect = Effects(self._effect_id).name
             except ValueError:
                 pass
         else:
@@ -53,10 +55,10 @@ class Light():
         Turn off the light
         """
         self._on = False
-        return protocol.encode_msg(
-            const.SetBulbCategory.light.value,
-            const.SetLightFunction.power.value,
-            const.Commands.OFF.value
+        return encode_msg(
+            SetBulbCategory.light.value,
+            SetLightFunction.power.value,
+            Commands.OFF.value
         )
 
     def turn_on(self) -> str:
@@ -67,10 +69,10 @@ class Light():
             brightness
         """
         self._on = True
-        return protocol.encode_msg(
-            const.SetBulbCategory.light.value,
-            const.SetLightFunction.power.value,
-            const.Commands.ON.value
+        return encode_msg(
+            SetBulbCategory.light.value,
+            SetLightFunction.power.value,
+            Commands.ON.value
         )
 
     def set_brightness(self, brightness) -> str:
@@ -80,9 +82,9 @@ class Light():
         :param intensity: brightness between 0..255
         """
         self._brightness = brightness
-        return protocol.encode_msg(
-            const.SetBulbCategory.light.value,
-            const.SetLightFunction.brightness.value,
+        return encode_msg(
+            SetBulbCategory.light.value,
+            SetLightFunction.brightness.value,
             brightness
         )
 
@@ -94,9 +96,9 @@ class Light():
         """
         self._rgb = rgb
         self._white = False
-        return protocol.encode_msg(
-            const.SetBulbCategory.light.value,
-            const.SetLightFunction.color.value,
+        return encode_msg(
+            SetBulbCategory.light.value,
+            SetLightFunction.color.value,
             rgb
         )
 
@@ -107,10 +109,10 @@ class Light():
         """
         self._white = True
         self._rgb = None
-        return protocol.encode_msg(
-            const.SetBulbCategory.light.value,
-            const.SetLightFunction.white.value,
-            const.Commands.ON.value
+        return encode_msg(
+            SetBulbCategory.light.value,
+            SetLightFunction.white.value,
+            Commands.ON.value
         )
 
     def set_white_intensity(self, intensity: int):
@@ -119,9 +121,9 @@ class Light():
         ;param intensity: value between 1..255
         """
         self._white_intensity = intensity
-        return protocol.encode_msg(
-            const.SetBulbCategory.lamp.value,
-            const.SetLightFunction.white_intensity.value,
+        return encode_msg(
+            SetBulbCategory.lamp.value,
+            SetLightFunction.white_intensity.value,
             intensity
         )
 
@@ -132,14 +134,14 @@ class Light():
         :param effect: An effect
         """
         self._effect = effect
-        c = const.Effects[effect].value[0]
-        e = const.Effects[effect].value[1]
-        if c == const.SetLightFunction.white:
+        c = Effects[effect].value[0]
+        e = Effects[effect].value[1]
+        if c == SetLightFunction.white:
             self._white = True
         else:
             self._white = False
-        return protocol.encode_msg(
-            const.SetBulbCategory.light.value,
+        return encode_msg(
+            SetBulbCategory.light.value,
             c,
             e
         )
