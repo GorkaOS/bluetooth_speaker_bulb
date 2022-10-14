@@ -1,4 +1,4 @@
-# Alloyseed Speaker Bulb
+# Alloyseed Speaker Bulb (MyLight?)
 Use at own risk! This library is only for the settings of the bulb, not playing music.
 
 ## Alloyseed Bulb
