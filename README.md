@@ -3,6 +3,12 @@ Use at own risk! This library is only for the settings of the bulb, not playing 
 Brands
 * Alloyseed
 * Mylight
+* MSC
+* TCP Smart LED
+* Boombeat
+* SweetLF
+
+Bluetooth speaker bulbs using iLink app (ios)
 
 
 ## Bluetooth Speaker Bulb
