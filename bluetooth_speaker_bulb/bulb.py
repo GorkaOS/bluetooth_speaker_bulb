@@ -86,7 +86,7 @@ class Bulb():
 
     async def set_effect(self, effect: str) -> bool:
         return await self.send(self._light.set_effect(effect=effect))
- 
+
     async def set_volume(self, volume: int) -> bool:
         return await self.send(self._speaker.set_speaker_level(level=volume))
 

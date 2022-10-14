@@ -28,19 +28,19 @@ class Speaker():
         _LOGGER.debug(f"Updating speaker, raw_data: {raw_data}")
         self._mute = False if raw_data[DATA_VOLUME]['volume'] > 0 else True
 
-        min_level = const.SpeakerEqualizerLevelMin.volume.value
-        max_level = const.SpeakerEqualizerLevelMax.volume.value
+        min_level = SpeakerEqualizerLevelMin.volume.value
+        max_level = SpeakerEqualizerLevelMax.volume.value
         steps = len(range(min_level, max_level))
         self._volume = \
             int(raw_data[DATA_VOLUME]['volume'] * 100 / steps)
 
         self._equalizer = raw_data[DATA_EQ]
         self._speaker_effect = None
-        for speaker_effect in const.SpeakerEffectEqualizer:
+        for speaker_effect in SpeakerEffectEqualizer:
             if speaker_effect.value == self._equalizer:
                 self._speaker_effect = speaker_effect.name
 
-    def set_speaker_level(self, level, function=const.SetSpeakerFunction.volume.name):
+    def set_speaker_level(self, level, function=SetSpeakerFunction.volume.name):
         """
         Set speaker levels for volume and equalizer
 
@@ -48,15 +48,15 @@ class Speaker():
         :param speaker_function: An speaker function\
         ;(see :class:`.SetSpeakerFunction`)
         """
-        min_level = const.SpeakerEqualizerLevelMin[function].value
-        max_level = const.SpeakerEqualizerLevelMax[function].value
+        min_level = SpeakerEqualizerLevelMin[function].value
+        max_level = SpeakerEqualizerLevelMax[function].value
 
         steps = len(range(min_level, max_level))
         level_modified = int(level / 100 * steps)
 
-        return protocol.encode_msg(
-            const.SetBulbCategory.speaker.value,
-            const.SetSpeakerFunction[function].value,
+        return encode_msg(
+            SetBulbCategory.speaker.value,
+            SetSpeakerFunction[function].value,
             level_modified
         )
 
@@ -67,10 +67,10 @@ class Speaker():
         :param speaker_effect: An speaker effect (see :class:`.SpeakerEffect`)
         """
         self._effect = effect
-        return protocol.encode_msg(
-            const.SetBulbCategory.speaker.value,
-            const.SetSpeakerFunction.speaker_effect.value,
-            const.SpeakerEffect[effect].value
+        return encode_msg(
+            SetBulbCategory.speaker.value,
+            SetSpeakerFunction.speaker_effect.value,
+            SpeakerEffect[effect].value
         )
 
     @property

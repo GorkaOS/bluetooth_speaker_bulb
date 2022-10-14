@@ -174,8 +174,8 @@ class Connection():
         buffer_list = []
         for func in functions:
             msg = encode_msg(category.value,
-                                      func.value,
-                                      Commands.REQ_DATA.value)
+                             func.value,
+                             Commands.REQ_DATA.value)
             await self.send_cmd(msg)
             buffer = await self.read_cmd()
             if buffer:
