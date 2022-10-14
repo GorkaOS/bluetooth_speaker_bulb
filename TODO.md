@@ -1,7 +1,7 @@
 # Todo
 
-## Alloyseed Bulb
-* [ ] ~~Fix magicblueshell for both magicblue and alloyseed~~
+## Bluetooth Speaker Bulb
+* [ ] ~~Fix magicblueshell for both magicblue and bluetooth_speaker_bulb~~
 * [x] Encode
 * [x] Encode all messages of one func
 * [x] Checksum send

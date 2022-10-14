@@ -1,7 +1,11 @@
-# Alloyseed Speaker Bulb (MyLight?)
+# Bluetooth Speaker Bulb
 Use at own risk! This library is only for the settings of the bulb, not playing music.
+Brands
+* Alloyseed
+* Mylight
 
-## Alloyseed Bulb
+
+## Bluetooth Speaker Bulb
 <img src="https://cdn.shopify.com/s/files/1/1026/2915/products/71sjF1R7SnL._SL1500_1024x1024.jpg?v=1499116245" width="200">
 
 
@@ -11,7 +15,7 @@ Use at own risk! This library is only for the settings of the bulb, not playing 
 ```python
 import asyncio
 import logging
-from alloyseed.bulb import Bulb
+from bluetooth_speaker_bulb.bulb import Bulb
 
 logging.basicConfig(level=logging.DEBUG)
 

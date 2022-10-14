@@ -4,21 +4,21 @@ import re
 
 __version__ = re.search(
     r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-    open('alloyseed/__init__.py').read()
+    open('bluetooth_speaker_bulb/__init__.py').read()
 ).group(1)
 
 setuptools.setup(
-    name='alloyseed',
+    name='bluetooth_speaker_bulb',
     version=__version__,
     description='Unofficial Python API to control '
-                'Alloyseed bulbs over Bluetooth',
-    long_description='See https://github.com/orrpan/alloyseed for more info,\
+                'bluetooth speaker bulb',
+    long_description='See https://github.com/orrpan/bluetooth_speaker_bulb for more info,\
          based on Betrees https://github.com/Betree/magicblue',
-    url='https://github.com/orrpan/alloyseed',
+    url='https://github.com/orrpan/bluetooth_speaker_bulb',
     author='Oskar Joelsson',
     author_email='',
     license='MIT',
-    packages=['alloyseed'],
+    packages=['bluetooth_speaker_bulb'],
     install_requires=[
         'bleak>=0.15.0',
         'webcolors'
@@ -26,7 +26,7 @@ setuptools.setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'alloyseed = alloyseed.magicblueshell:main',
+            'bluetooth_speaker_bulb = bluetooth_speaker_bulb.magicblueshell:main',
         ],
     },
     classifiers=[
@@ -35,5 +35,5 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English'
     ],
-    keywords=['bluetooth', 'bulb', 'my', 'alloyseed', 'blue', 'ble', 'iot']
+    keywords=['bluetooth', 'bulb', 'my', 'bluetooth_speaker_bulb', 'blue', 'ble', 'iot']
 )

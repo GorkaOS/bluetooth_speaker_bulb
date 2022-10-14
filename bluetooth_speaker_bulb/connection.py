@@ -4,7 +4,7 @@ import logging
 from enum import Enum
 from typing import Any, Callable
 from uuid import UUID
-from alloyseed import const, protocol
+from bluetooth_speaker_bulb import const, protocol
 
 
 from bleak import BleakClient, BleakError, BleakScanner
@@ -19,7 +19,7 @@ CONTROL_UUID: UUID = "0000a040-0000-1000-8000-00805f9b34fb"
 NAME_UUID: UUID = "00002a00-0000-1000-8000-00805f9b34fb"
 NOTIFY_HANDLE: hex = 0x8
 
-MODEL_ALLOYSEED = "Alloyseed"
+MODEL_BLUETOOTH_SPEAKER_BULB = "bluetooth_speaker_bulb"
 MODEL_UNKNOWN = "Unknown"
 
 
@@ -30,8 +30,8 @@ class Conn(Enum):
 
 def model_from_name(ble_name: str) -> str:
     model = MODEL_UNKNOWN
-    if ble_name.startswith("Alloyseed"):
-        model = MODEL_ALLOYSEED
+    if ble_name.startswith("bluetooth_speaker_bulb"):
+        model = MODEL_BLUETOOTH_SPEAKER_BULB
     return model
 
 
@@ -43,11 +43,11 @@ async def find_device_by_address(
     return await BleakScanner.find_device_by_address(address.upper(), timeout=timeout)
 
 
-async def discover_alloyseed_lamps(
+async def discover_bluetooth_speaker_bulb_lamps(
     scanner: type[BleakScanner],
 ) -> list[dict[str, Any]]:
     """Scanning feature
-    Scan the BLE neighborhood for an Alloyseed lamp
+    Scan the BLE neighborhood for an bluetooth speaker bulb
     This method requires the script to be launched as root
     Returns the list of nearby lamps
     """
@@ -70,7 +70,7 @@ class Connection():
         self._ble_device = ble_device
         self._mac = self._ble_device.address
         _LOGGER.debug(
-            f"Initializing Alloyseed Lamp {self._ble_device.name} ({self._mac})"
+            f"Initializing Bluetooth Speaker Bulb {self._ble_device.name} ({self._mac})"
         )
         self._timeout = timeout
         self._retries = retries

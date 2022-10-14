@@ -64,18 +64,18 @@ class LightEffect(Enum):
     An enum of all the possible effects the bulb can accept
     """
     none = 0x00
-    rainbow = 0x01                      #: alloyseed
-    flowing = 0x02                      #: alloyseed
-    heartbeat = 0x03                    #: alloyseed
-    red_pulse = 0x04                    #: alloyseed
-    green_pulse = 0x05                  #: alloyseed
-    blue_pulse = 0x06                   #: alloyseed
-    alarm = 0x07                        #: alloyseed
-    flash = 0x08                        #: alloyseed
-    breathing = 0x09                    #: alloyseed
-    feel_green = 0x0a                   #: alloyseed
-    sunsets = 0x0b                      #: alloyseed
-    music = 0x0c                        #: alloyseed
+    rainbow = 0x01                      #: bluetooth_speaker_bulb
+    flowing = 0x02                      #: bluetooth_speaker_bulb
+    heartbeat = 0x03                    #: bluetooth_speaker_bulb
+    red_pulse = 0x04                    #: bluetooth_speaker_bulb
+    green_pulse = 0x05                  #: bluetooth_speaker_bulb
+    blue_pulse = 0x06                   #: bluetooth_speaker_bulb
+    alarm = 0x07                        #: bluetooth_speaker_bulb
+    flash = 0x08                        #: bluetooth_speaker_bulb
+    breathing = 0x09                    #: bluetooth_speaker_bulb
+    feel_green = 0x0a                   #: bluetooth_speaker_bulb
+    sunsets = 0x0b                      #: bluetooth_speaker_bulb
+    music = 0x0c                        #: bluetooth_speaker_bulb
 
 
 class WhiteEffect(Enum):
