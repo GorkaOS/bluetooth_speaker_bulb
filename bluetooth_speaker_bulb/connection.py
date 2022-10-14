@@ -4,7 +4,8 @@ import logging
 from enum import Enum
 from typing import Any, Callable
 from uuid import UUID
-from bluetooth_speaker_bulb import const, protocol
+import const
+import protocol
 
 
 from bleak import BleakClient, BleakError, BleakScanner

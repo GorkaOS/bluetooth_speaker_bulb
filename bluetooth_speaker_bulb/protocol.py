@@ -1,4 +1,4 @@
-from mylight import const
+import const
 
 
 def encode_msg(category, function, data=[]):

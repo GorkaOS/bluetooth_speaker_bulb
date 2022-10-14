@@ -1,17 +1,17 @@
 import asyncio
 from typing import Callable
-from mylight import const
-from mylight.connection import Connection
-from mylight.light import Light
-from mylight.speaker import Speaker
+import const
+import connection
+import light
+import speaker
 from bleak.backends.device import BLEDevice
 
 
 class Bulb():
     def __init__(self, ble_device: BLEDevice) -> None:
-        self._connection = Connection(ble_device, timeout=20, retries=3)
-        self._light = Light()
-        self._speaker = Speaker()
+        self._connection = connection(ble_device, timeout=20, retries=3)
+        self._light = light()
+        self._speaker = speaker()
 
     async def connect(self) -> bool:
         return await self._connection.connect()

@@ -1,5 +1,6 @@
 import logging
-from mylight import const, protocol
+import const
+import protocol
 _LOGGER = logging.getLogger(__name__)
 
 DATA_VOLUME = 0
