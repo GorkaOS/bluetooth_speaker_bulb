@@ -122,7 +122,7 @@ class Light():
         """
         self._white_intensity = intensity
         return encode_msg(
-            SetBulbCategory.lamp.value,
+            SetBulbCategory.light.value,
             SetLightFunction.white_intensity.value,
             intensity
         )
